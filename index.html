@@ -1,55 +1,233 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA AI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+    <title>NOVA Pro — Gelişmiş Web Asistanı</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#050508',
+                        sidebarBg: '#0b0c10',
+                        pillBg: '#12131c',
+                        accent: '#00f2fe',
+                        accentHover: '#4facfe'
+                    }
+                }
+            }
         }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-        .content {
-            flex: 1;
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-darkBg text-gray-100 font-sans h-screen flex overflow-hidden">
 
-    <header>
-        <img src="logo.jpg" alt="NOVA Logo" class="logo">
-        <h1>NOVA</h1>
-    </header>
+    <!-- SOL MENÜ (Sidebar) -->
+    <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 transition-all duration-300 z-20">
+        <div class="p-5 flex flex-col items-center border-b border-gray-800/50">
+            <!-- Logo / İkon (Seçtiğimiz 1. Numara Fütüristik Logo eklendi) -->
+            <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
+                <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover">
+            </div>
+            <h1 class="text-lg font-bold tracking-wider text-cyan-400">NOVA PRO AI</h1>
+        </div>
 
-    <div class="content">
-        <h2>Hoş Geldiniz!</h2>
-        <p>NOVA yapay zeka web uygulaması yayında.</p>
-    </div>
+        <div class="p-4 flex flex-col gap-2">
+            <button onclick="yeniSohbetBaslat()" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <span>+ Yeni Sohbet</span>
+            </button>
+            <button onclick="sistemTalimatiAyarla()" class="w-full bg-[#1f1f2e] hover:bg-[#2f3542] text-gray-300 text-sm py-2 px-4 rounded-xl transition border border-gray-800">
+                ⚙ Sistem Talimatı (Persona)
+            </button>
+        </div>
 
+        <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Geçmiş Sohbetler</div>
+        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5">
+            <!-- Sohbet geçmişi dinamik dolacak -->
+        </div>
+    </aside>
+
+    <!-- SAĞ ANA ALAN -->
+    <main class="flex-1 flex flex-col h-full relative">
+        <!-- Üst Bar -->
+        <header class="h-16 border-b border-gray-800/60 flex items-center justify-between px-6 bg-darkBg/80 backdrop-blur">
+            <div class="flex items-center gap-4">
+                <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm">
+                    ☰ Menü
+                </button>
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 select-none">
+                    <input type="checkbox" id="webAramaSwitch" class="w-4 h-4 accent-cyan-400 rounded">
+                    <span>Canlı Web Arama</span>
+                </label>
+            </div>
+            <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
+        </header>
+
+        <!-- Sohbet Mesajları Alanı -->
+        <div id="sohbetKutusu" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto">
+            <!-- Mesajlar buraya eklenecek -->
+        </div>
+
+        <!-- Alt Girdi Paneli -->
+        <div class="p-4 max-w-4xl w-full mx-auto">
+            <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz..." 
+                    class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500"
+                    onkeypress="if(event.key === 'Enter') mesajGonder()">
+                
+                <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Mantığı -->
+    <script>
+        let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
+        let aktifSohbetId = null;
+        let sistemTalimati = localStorage.getItem('nova_web_persona') || "Sen yardımsever, akıllı ve Türkçe bilen profesyonel bir yapay zeka asistanısın.";
+
+        const sohbetKutusu = document.getElementById('sohbetKutusu');
+        const mesajGiris = document.getElementById('mesajGiris');
+        const aktifBaslik = document.getElementById('aktifBaslik');
+        const gecmisListesi = document.getElementById('gecmisListesi');
+        const webAramaSwitch = document.getElementById('webAramaSwitch');
+
+        function verileriKaydet() {
+            localStorage.setItem('nova_web_sohbetler', JSON.stringify(sohbetler));
+            localStorage.setItem('nova_web_persona', sistemTalimati);
+        }
+
+        function menuToggle() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function sistemTalimatiAyarla() {
+            const yeniPersona = prompt("Nova için özel sistem talimatı (Persona) girin:", sistemTalimati);
+            if (yeniPersona !== null) {
+                sistemTalimati = yeniPersona.trim();
+                verileriKaydet();
+            }
+        }
+
+        function yeniSohbetBaslat() {
+            const yeniId = Date.now();
+            const yeniSohbet = {
+                id: yeniId,
+                baslik: "Yeni Sohbet",
+                mesajlar: [{ rol: "system", metin: "Merhaba! Web arama ve bağlam hafızası aktif. Nasıl yardımcı olabilirim?" }]
+            };
+            sohbetler.unshift(yeniSohbet);
+            aktifSohbetiYukle(yeniId);
+        }
+
+        function aktifSohbetiYukle(id) {
+            aktifSohbetId = id;
+            const sohbet = sohbetler.find(s => s.id === id);
+            if (!sohbet) return;
+
+            aktifBaslik.innerText = sohbet.baslik;
+            sohbetKutusu.innerHTML = "";
+            sohbet.mesajlar.forEach(m => mesajEkranaEkle(m.rol, m.metin, false));
+            sohbetListesiniGuncelle();
+        }
+
+        function sohbetListesiniGuncelle() {
+            gecmisListesi.innerHTML = "";
+            sohbetler.forEach(s => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-[#1f1f2e] text-cyan-400 font-medium' : 'text-gray-400 hover:bg-[#1f1f2e]/50'}`;
+                div.innerHTML = `<span class="truncate flex-1" onclick="aktifSohbetiYukle(${s.id})">${s.baslik}</span>
+                               <button onclick="sohbetSil(${s.id}, event)" class="text-red-400 hover:text-red-300 px-1.5 text-xs">✕</button>`;
+                gecmisListesi.appendChild(div);
+            });
+        }
+
+        function sohbetSil(id, event) {
+            event.stopPropagation();
+            sohbetler = sohbetler.filter(s => s.id !== id);
+            verileriKaydet();
+            if (sohbetler.length === 0) {
+                yeniSohbetBaslat();
+            } else if (aktifSohbetId === id) {
+                aktifSohbetiYukle(sohbetler[0].id);
+            } else {
+                sohbetListesiniGuncelle();
+            }
+        }
+
+        function mesajEkranaEkle(rol, metin, scroll = true) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-4`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
+            bubble.innerText = metin;
+
+            wrapper.appendChild(bubble);
+            sohbetKutusu.appendChild(wrapper);
+            if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
+            return bubble;
+        }
+
+        async function mesajGonder() {
+            const metin = mesajGiris.value.trim();
+            if (!metin) return;
+
+            let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+            if (!sohbet) return;
+
+            if (sohbet.baslik === "Yeni Sohbet") {
+                sohbet.baslik = metin.substring(0, 25) + (metin.length > 25 ? "..." : "");
+                aktifBaslik.innerText = sohbet.baslik;
+            }
+
+            sohbet.mesajlar.push({ rol: 'user', metin: metin });
+            mesajEkranaEkle('user', metin);
+            mesajGiris.value = "";
+            verileriKaydet();
+            sohbetListesiniGuncelle();
+
+            // Yapay zeka yanıt alanı oluştur
+            const aiBubble = mesajEkranaEkle('assistant', '');
+            let tamYanit = "";
+
+            let baglam = `Sistem Talimatı: ${sistemTalimati}\n`;
+            if (webAramaSwitch.checked) baglam += "Canlı web arama aktif, güncel bilgileri kullan.\n";
+            sohbet.mesajlar.forEach(m => baglam += `${m.rol === 'user' ? 'Kullanıcı' : 'Asistan'}: ${m.metin}\n`);
+
+            try {
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(baglam)}?model=openai`);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const parca = decoder.decode(value, { stream: true });
+                    tamYanit += parca;
+                    aiBubble.innerText = tamYanit;
+                    sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
+                }
+
+                sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit });
+                verileriKaydet();
+            } catch (err) {
+                aiBubble.innerText = "[HATA]: Sunucu bağlantısı kurulamadı.";
+            }
+        }
+
+        // Başlangıç kontrolü
+        if (sohbetler.length === 0) {
+            yeniSohbetBaslat();
+        } else {
+            aktifSohbetiYukle(sohbetler[0].id);
+        }
+    </script>
 </body>
 </html>
