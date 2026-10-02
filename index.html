@@ -3,124 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA - AI Web Application</title>
+    <title>NOVA AI</title>
     <style>
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #0b0f19;
-            color: #f3f4f6;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
         header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 15px 30px;
-            background-color: #111827;
-            border-bottom: 1px solid #1f2937;
+            gap: 15px;
         }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo-container img {
-            width: 45px;
-            height: 45px;
+        .logo {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #3b82f6;
         }
-        .logo-container h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #ffffff;
+        h1 {
+            margin: 0;
+            font-size: 20px;
         }
-        .chat-container {
+        .content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
             padding: 20px;
-            overflow-y: auto;
-        }
-        .message {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            max-width: 75%;
-            line-height: 1.5;
-        }
-        .ai-message {
-            background-color: #1f2937;
-            align-self: flex-start;
-            border-left: 4px solid #3b82f6;
-        }
-        .input-area {
-            padding: 20px;
-            background-color: #111827;
-            border-top: 1px solid #1f2937;
-            display: flex;
-            justify-content: center;
-        }
-        .input-wrapper {
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            gap: 10px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 18px;
-            border-radius: 8px;
-            border: 1px solid #374151;
-            background-color: #1f2937;
-            color: white;
-            outline: none;
-            font-size: 16px;
-        }
-        button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-container">
-            <!-- Sol üstteki logon (Logo dosyanın adının logo.jpg olduğundan emin ol) -->
-            <img src="logo.jpg" alt="NOVA Logo">
-            <h1>NOVA</h1>
-        </div>
+        <img src="logo.jpg" alt="NOVA Logo" class="logo">
+        <h1>NOVA</h1>
     </header>
 
-    <div class="chat-container">
-        <div class="message ai-message">
-            Merhaba! Ben <strong>NOVA</strong>. Yapay zeka asistanınız hizmete hazır.
-        </div>
-    </div>
-
-    <div class="input-area">
-        <div class="input-wrapper">
-            <input type="text" placeholder="NOVA'ya bir şeyler yazın..." disabled>
-            <button disabled>Gönder</button>
-        </div>
+    <div class="content">
+        <h2>Hoş Geldiniz!</h2>
+        <p>NOVA yapay zeka web uygulaması yayında.</p>
     </div>
 
 </body>
