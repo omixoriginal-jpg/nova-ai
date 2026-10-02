@@ -53,9 +53,9 @@
             margin: 0 auto;
             padding: 20px;
             overflow-y: auto;
+            gap: 20px;
         }
         .message {
-            margin-bottom: 20px;
             padding: 15px;
             border-radius: 12px;
             max-width: 75%;
@@ -66,10 +66,12 @@
             align-self: flex-start;
             border-left: 4px solid #3b82f6;
         }
-        .user-message {
-            background-color: #2563eb;
-            color: white;
-            align-self: flex-end;
+        /* Sitenin içine eklenecek görsel alanı için stil */
+        .content-image {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid #374151;
+            margin-top: 10px;
         }
         .input-area {
             padding: 20px;
@@ -94,9 +96,6 @@
             outline: none;
             font-size: 16px;
         }
-        input[type="text"]:focus {
-            border-color: #3b82f6;
-        }
         button {
             padding: 12px 24px;
             border-radius: 8px;
@@ -105,10 +104,6 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background-color: #2563eb;
         }
     </style>
 </head>
@@ -124,7 +119,12 @@
 
     <div class="chat-container">
         <div class="message ai-message">
-            Merhaba! Ben <strong>NOVA</strong>. Yapay zeka asistanınız hizmete hazır. Size bugün nasıl yardımcı olabilirim?
+            Merhaba! Ben <strong>NOVA</strong>. Yapay zeka asistanınız hizmete hazır. 
+            <br><br>
+            Aşağıya senin için bir örnek görsel de ekledim (Kendi görselini eklemek istersen dosya adını değiştirebilirsin):
+            <br>
+            <!-- Buradaki src kısmına kendi yüklediğin görselin adını yazabilirsin (Örn: resim.jpg) -->
+            <img src="logo.jpg" alt="Örnek Görsel" class="content-image">
         </div>
     </div>
 
