@@ -28,7 +28,7 @@
     <!-- SOL MENÜ (Sidebar) -->
     <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 transition-all duration-300 z-20">
         <div class="p-5 flex flex-col items-center border-b border-gray-800/50">
-            <!-- Logo / İkon (Seçtiğimiz 1. Numara Fütüristik Logo eklendi) -->
+            <!-- Logo / İkon (Seçtiğimiz 1. Numara Fütüristik Logo) -->
             <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
                 <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover">
             </div>
@@ -202,7 +202,8 @@
             sohbet.mesajlar.forEach(m => baglam += `${m.rol === 'user' ? 'Kullanıcı' : 'Asistan'}: ${m.metin}\n`);
 
             try {
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(baglam)}?model=openai`);
+                // Güncellenmiş ve kararlı enter.pollinations.ai adresi kullanılıyor
+                const response = await fetch(`https://enter.pollinations.ai/${encodeURIComponent(baglam)}?model=openai`);
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
 
