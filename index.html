@@ -25,11 +25,13 @@
         }
     </script>
     <style>
-        .markdown-body pre { background: #1a1b26; padding: 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; }
+        .markdown-body pre { background: #1a1b26; padding: 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; position: relative; }
         .markdown-body code { font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-size: 0.875rem; }
         .markdown-body p { margin-bottom: 0.75rem; }
         .markdown-body p:last-child { margin-bottom: 0; }
         .markdown-body strong { color: #00f2fe; font-weight: 600; }
+        .copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
     </style>
 </head>
 <body class="bg-darkBg text-gray-100 font-sans h-screen flex overflow-hidden">
@@ -127,7 +129,6 @@
             if (e.key === 'Enter') mesajGonder();
         });
 
-        // Dışarı tıklanınca dosya menüsünü kapat
         window.addEventListener('click', function(e) {
             if (!e.target.closest('.relative')) {
                 dosyaMenu.classList.add('hidden');
@@ -258,6 +259,18 @@
             secilenDosyaBilgi.classList.add('hidden');
         }
 
+        // Metni sesli okuma fonksiyonu
+        function metniSeslendir(metin) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Önceki okumaları durdur
+                const utterance = new SpeechSynthesisUtterance(metin);
+                utterance.lang = 'tr-TR';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Tarayıcınız sesli okuma özelliğini desteklemiyor.");
+            }
+        }
+
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-4 group`;
@@ -273,18 +286,47 @@
                 bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
+                
+                // Kod bloklarına otomatik "Kopyala" butonu ekleme
+                setTimeout(() => {
+                    const preElements = bubble.querySelectorAll('pre');
+                    preElements.forEach(pre => {
+                        if (!pre.querySelector('.copy-btn')) {
+                            const btn = document.createElement('button');
+                            btn.className = 'copy-btn';
+                            btn.innerText = 'Kopyala';
+                            btn.onclick = () => {
+                                const codeText = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                                navigator.clipboard.writeText(codeText);
+                                btn.innerText = 'Kopyalandı!';
+                                setTimeout(() => btn.innerText = 'Kopyala', 2000);
+                            };
+                            pre.appendChild(btn);
+                        }
+                    });
+                }, 50);
+
             } else {
                 bubble.innerText = metin;
             }
 
+            // Alt Butonlar (Sil ve Sesli Oku)
             const actionsBar = document.createElement('div');
-            actionsBar.className = `flex items-center gap-2 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
+            actionsBar.className = `flex items-center gap-3 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
 
             const silBtn = document.createElement('button');
             silBtn.className = 'hover:text-red-400 transition';
             silBtn.innerText = 'Mesajı Sil';
             silBtn.onclick = () => mesajSil(index);
             actionsBar.appendChild(silBtn);
+
+            if (rol === 'assistant' && tip === 'text') {
+                const sesBtn = document.createElement('button');
+                sesBtn.className = 'hover:text-cyan-400 transition';
+                sesBtn.innerText = '🔊 Sesli Oku';
+                sesBtn.onclick = () => metniSeslendir(metin);
+                actionsBar.appendChild(sesBtn);
+            }
 
             wrapper.appendChild(bubble);
             wrapper.appendChild(actionsBar);
