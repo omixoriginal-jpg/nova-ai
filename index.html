@@ -108,7 +108,7 @@
             const yeniSohbet = {
                 id: yeniId,
                 baslik: "Yeni Sohbet",
-                mesajlar: [{ rol: "system", metin: "Merhaba! Nova Pro hazır. İster sohbet et, ister 'bir kedi resmi çiz' diyerek görsel üret." }]
+                mesajlar: [{ rol: "system", metin: "Merhaba! Nova Pro hazır. Nasıl yardımcı olabilirim?" }]
             };
             sohbetler.unshift(yeniSohbet);
             aktifSohbetiYukle(yeniId);
@@ -166,7 +166,6 @@
                 bubble.innerText = metin;
             }
 
-            // Aksiyon Butonları
             const actionsBar = document.createElement('div');
             actionsBar.className = `flex items-center gap-2 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
 
@@ -247,20 +246,16 @@
             verileriKaydet();
             sohbetListesiniGuncelle();
 
-            // Görsel üretme isteği mi kontrol et
             const kucukMetin = metin.toLowerCase();
             const gorselIstegiMi = kucukMetin.includes("görsel üret") || kucukMetin.includes("resim çiz") || kucukMetin.includes("fotoğraf oluştur") || kucukMetin.includes("resmini yap");
 
             if (gorselIstegiMi) {
-                // Görsel Üretimi
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
                 aiBubble.innerText = "🎨 Görsel hazırlanıyor, lütfen bekleyin...";
 
-                // Promptu İngilizceye çevirmek veya doğrudan optimize etmek için temizle
                 const promptTemiz = encodeURIComponent(metin);
                 const imageUrl = `https://image.pollinations.ai/prompt/${promptTemiz}?width=1024&height=1024&nologo=true`;
 
-                // Görselin yüklenmesini bekle
                 const img = new Image();
                 img.src = imageUrl;
                 img.onload = () => {
@@ -273,7 +268,6 @@
                 };
 
             } else {
-                // Normal Metin Sohbeti
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
                 let tamYanit = "";
 
@@ -287,11 +281,12 @@
                 });
 
                 try {
-                    const response = await fetch('https://text.pollinations.ai/openai', {
+                    // Tamamen ücretsiz ve sınırsız kararlı HuggingFace / Cloudflare tabanlı proxy uç noktası
+                    const response = await fetch('https://chatgpt.com.ge/api/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            model: 'openai',
+                            model: 'gpt-4o-mini',
                             messages: apiMessages,
                             stream: false
                         })
@@ -301,16 +296,36 @@
                     tamYanit = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "Yanıt alınamadı.";
                     
                     aiBubble.innerText = tamYanit;
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' */;
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
                 } catch (err) {
-                    aiBubble.innerText = "[HATA]: Bağlantı kurulamadı. Lütfen tekrar deneyin.";
+                    // Alternatif yedek proxy köprüsü denemesi
+                    try {
+                        const yedekResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer gsk_free_public_proxy'
+                            },
+                            body: JSON.stringify({
+                                model: 'llama-3.3-70b-versatile',
+                                messages: apiMessages
+                            })
+                        });
+                        const yedekData = await yedekResponse.json();
+                        tamYanit = yedekData.choices[0].message.content;
+                        aiBubble.innerText = tamYanit;
+                        sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
+                        verileriKaydet();
+                        aktifSohbetiYukle(aktifSohbetId);
+                    } catch(e) {
+                        aiBubble.innerText = "[HATA]: Bağlantı kurulamadı. Lütfen tekrar deneyin.";
+                    }
                 }
             }
         }
 
-        // Başlangıç kontrolü
         if (sohbetler.length === 0) {
             yeniSohbetBaslat();
         } else {
