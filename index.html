@@ -281,12 +281,12 @@
                 });
 
                 try {
-                    // Tamamen ücretsiz ve sınırsız kararlı HuggingFace / Cloudflare tabanlı proxy uç noktası
-                    const response = await fetch('https://chatgpt.com.ge/api/openai/v1/chat/completions', {
+                    // Tamamen ücretsiz, kota sorunu olmayan kararlı açık API yönlendiricisi
+                    const response = await fetch('https://text.pollinations.ai/openai', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            model: 'gpt-4o-mini',
+                            model: 'openai',
                             messages: apiMessages,
                             stream: false
                         })
@@ -296,32 +296,11 @@
                     tamYanit = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "Yanıt alınamadı.";
                     
                     aiBubble.innerText = tamYanit;
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' */;
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
                 } catch (err) {
-                    // Alternatif yedek proxy köprüsü denemesi
-                    try {
-                        const yedekResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                            method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer gsk_free_public_proxy'
-                            },
-                            body: JSON.stringify({
-                                model: 'llama-3.3-70b-versatile',
-                                messages: apiMessages
-                            })
-                        });
-                        const yedekData = await yedekResponse.json();
-                        tamYanit = yedekData.choices[0].message.content;
-                        aiBubble.innerText = tamYanit;
-                        sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
-                        verileriKaydet();
-                        aktifSohbetiYukle(aktifSohbetId);
-                    } catch(e) {
-                        aiBubble.innerText = "[HATA]: Bağlantı kurulamadı. Lütfen tekrar deneyin.";
-                    }
+                    aiBubble.innerText = "[HATA]: Bağlantı kurulamadı. Lütfen tekrar deneyin.";
                 }
             }
         }
