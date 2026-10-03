@@ -360,34 +360,17 @@
             aktifSohbetiYukle(aktifSohbetId);
         }
 
-        // Geliştirilmiş ve Doğal Konuşma Destekli Akıllı Yanıt Motoru
-        function akilliYanitUret(metin) {
-            const m = metin.toLowerCase().trim();
-
-            // Günlük konuşma kalıpları
-            if (m.includes("teşekkür") || m.includes("sağ ol") || m.includes("teşekkürler")) {
-                return `Rica ederim! Sana yardımcı olabildigime sevindim. Başka bir sorun ya da merak ettiğin bir şey var mı?`;
+        // Gerçek Yapay Zeka API Entegrasyonu (Pollinations Text API)
+        async function gercekAiYanitAl(metin) {
+            try {
+                const encodedPrompt = encodeURIComponent(metin);
+                const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=openai`);
+                if (!response.ok) throw new Error("API yanıt vermedi.");
+                const data = await response.text();
+                return data;
+            } catch (error) {
+                return "Şu anda yapay zeka sunucusuna bağlanırken geçici bir sorun yaşadım. Lütfen tekrar dene.";
             }
-            if (m.includes("merhaba") || m.includes("selam") || m.includes("naber") || m.includes("hey")) {
-                return `Selam! Ben **NOVA Pro AI**. Bugün sana hangi konuda yardımcı olabilirim?`;
-            }
-            if (m.includes("nasılsın") || m.includes("ne haber")) {
-                return `Harikayım, teşekkürler! Sen nasılsın? Hangi projeler veya konular üzerinde çalışıyorsun?`;
-            }
-            if (m.includes("adın ne") || m.includes("kimsin")) {
-                return `Ben **NOVA Pro AI**, senin kişisel web asistanınım!`;
-            }
-
-            // Bilim ve Teknoloji Konuları
-            if (m.includes("karadelik") || m.includes("kara delik") || m.includes("uzay")) {
-                return `### Kara Delikler Hakkında\n\n**Kara delikler**, uzayda kütle çekiminin devasa boyutlarda olduğu, ışığın dahi kaçamadığı bölgelerdir.\n\n* **Oluşumu**: Büyük kütleli yıldızların süpernova patlamasıyla çökmesi sonucu oluşur.\n* **Olay Ufku**: Geri dönüşü olmayan sınırdır.\n* **Tekillik**: Yoğunluğun sonsuz olduğu merkezdir.`;
-            } 
-            if (m.includes("arduino") || m.includes("kod") || m.includes("servo") || m.includes("program")) {
-                return `Arduino servo motor kontrol kodu örneği:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;\n\nvoid setup() {\n  myservo.attach(9); // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye bekle\n}\n\`\`\``;
-            }
-
-            // Genel yedek akıllı yanıt
-            return `Harika bir soru! **"${metin}"** konusu hakkında yaptığım incelemelere göre, bu alan oldukça heyecan verici ve detaylı araştırmalar gerektiriyor. Bu konuda öğrenmek istediğin özel bir detay var mı?`;
         }
 
         async function mesajGonder() {
@@ -436,15 +419,10 @@
             sohbetListesiniGuncelle();
 
             const kucukMetin = metin.toLowerCase();
-            const gorselIstegiMi = kucukMetin.includes("görsel") || kucukMetin.includes("resim") || kucukMetin.includes("çiz") || kucukMetin.includes("oluştur") || kucukMetin.includes("fotoğraf");
+            const gorselIstegiMi = kucukMetin.includes("görsel üret") || kucukMetin.includes("resim çiz") || kucukMetin.includes("fotoğraf oluştur");
 
             if (gorselIstegiMi) {
-                let fotoId = 111;
-                if (kucukMetin.includes("kedi")) fotoId = 40;
-                else if (kucukMetin.includes("köpek")) fotoId= 237;
-                else if (kucukMetin.includes("şehir")) fotoId = 164;
-                else if (kucukMetin.includes("bilgisayar")) fotoId = 0;
-
+                let fotoId = Math.floor(Math.random() * 500);
                 const imageUrl = `https://picsum.photos/id/${fotoId}/800/600`;
 
                 setTimeout(() => {
@@ -454,12 +432,11 @@
                 }, 600);
 
             } else {
-                setTimeout(() => {
-                    const tamYanit = akilliYanitUret(metin);
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
-                    verileriKaydet();
-                    aktifSohbetiYukle(aktifSohbetId);
-                }, 400);
+                // Gerçek yapay zeka modelinden yanıt al
+                const aiYaniti = await gercekAiYanitAl(metin);
+                sohbet.mesajlar.push({ rol: 'assistant', metin: aiYaniti, tip: 'text' });
+                verileriKaydet();
+                aktifSohbetiYukle(aktifSohbetId);
             }
         }
 
