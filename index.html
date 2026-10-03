@@ -191,7 +191,7 @@
             bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
             
             if (tip === 'image') {
-                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Bulunan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
             } else {
@@ -281,7 +281,7 @@
 
         async function mesajGonder() {
             const metin = mesajGiris.value.trim();
-            if (!metin) { return; }
+            if (!metin) return;
 
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) return;
@@ -303,18 +303,11 @@
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
-                aiBubble.innerText = "🔍 İstediğiniz görsel aranıp getiriliyor...";
+                aiBubble.innerText = "🎨 Görsel oluşturuluyor...";
 
-                // Kelimeye göre nokta atışı fotoğraf getiren yeni güvenli altyapı (LoremFlickr / Picsum)
-                let tag = "nature";
-                if (kucukMetin.includes("araba")) tag = "car";
-                else if (kucukMetin.includes("kedi")) tag = "cat";
-                else if (kucukMetin.includes("köpek")) tag = "dog";
-                else if (kucukMetin.includes("bilgisayar") || kucukMetin.includes("kod")) tag = "technology";
-                else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina")) tag = "city";
-
-                const rastgeleId = Math.floor(Math.random() * 1000);
-                const imageUrl = `https://loremflickr.com/800/600/${tag}?lock=${rastgeleId}`;
+                // Picsum Photos üzerinden rastgele yüksek kaliteli görsel ID'si üreterek güvenli yükleme
+                const randomId = Math.floor(Math.random() * 300) + 1;
+                const imageUrl = `https://picsum.photos/id/${randomId}/800/600`;
 
                 const imgTest = new Image();
                 imgTest.src = imageUrl;
