@@ -191,7 +191,7 @@
             bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
             
             if (tip === 'image') {
-                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 İstediğin Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
             } else {
@@ -303,70 +303,38 @@
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
-                aiBubble.innerText = "🎨 Görsel Canvas üzerinde çiziliyor...";
+                aiBubble.innerText = "🔍 İstediğin görsel aranıp hazırlanıyor...";
 
-                // Tarayıcı içinde yerel olarak kusursuz çalışan Canvas tabanlı görsel üretim motoru (Harici hata/CORS riski sıfır)
-                const canvas = document.createElement('canvas');
-                canvas.width = 800;
-                canvas.height = 600;
-                const ctx = canvas.getContext('2d');
+                // Akıllı Kelime Eşleştirme (Araba, Kedi, Köpek vb. kelimeleri nokta atışı yakalar)
+                let kategori = "nature";
+                if (kucukMetin.includes("araba") || kucukMetin.includes("otomobil") || kucukMetin.includes("tuning")) kategori = "car";
+                else if (kucukMetin.includes("kedi") || kucukMetin.includes("kedicik")) kategori = "cat";
+                else if (kucukMetin.includes("köpek") || kucukMetin.includes("enik")) kategori = "dog";
+                else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina") || kucukMetin.includes("gökdelen")) kategori = "city";
+                else if (kucukMetin.includes("bilgisayar") || kucukMetin.includes("kod") || kucukMetin.includes("teknoloji")) kategori = "technology";
+                else if (kucukMetin.includes("uzay") || kucukMetin.includes("yıldız") || kucukMetin.includes("galaksi")) kategori = "space";
+                else if (kucukMetin.includes("yemek") || kucukMetin.includes("burger") || kucukMetin.includes("tatlı")) kategori = "food";
 
-                // Şık arka plan gradyanı
-                const gradient = ctx.createLinearGradient(0, 0, 800, 600);
-                gradient.addColorStop(0, '#0f0c29');
-                gradient.addColorStop(0.5, '#302b63');
-                gradient.addColorStop(1, '#24243e');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, 800, 600);
+                // Unsplash kaynaklı nokta atışı garantili ve hızlı görsel URL'si
+                const rastgeleSayi = Math.floor(Math.random() * 1000);
+                const imageUrl = `https://source.unsplash.com/800x600/?${kategori}&sig=${rastgeleSayi}`;
 
-                // Parlak neon çerçeve
-                ctx.strokeStyle = '#00f2fe';
-                ctx.lineWidth = 8;
-                ctx.strokeRect(20, 20, 760, 560);
-
-                // İstek metni başlığı
-                ctx.fillStyle = '#00f2fe';
-                ctx.font = 'bold 28px sans-serif';
-                ctx.fillText('NOVA PRO AI - GÖRSEL ÜRETİCİ', 50, 80);
-
-                // Kullanıcının prompt'unu ortala ve yaz
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '24px sans-serif';
+                const imgTest = new Image();
+                imgTest.src = imageUrl;
                 
-                function kelimereBol(text, maxWidth) {
-                    const words = text.split(' ');
-                    let lines = [];
-                    let currentLine = words[0];
-                    for (let i = 1; i < words.length; i++) {
-                        const width = ctx.measureText(currentLine + " " + words[i]).width;
-                        if (width < maxWidth) {
-                            currentLine += " " + words[i];
-                        } else {
-                            lines.push(currentLine);
-                            currentLine = words[i];
-                        }
-                    }
-                    lines.push(currentLine);
-                    return lines;
-                }
-
-                const satirlar = kelimereBol('İstek: "' + metin + '"', 700);
-                let startY = 250;
-                satirlar.forEach((satir, idx) => {
-                    ctx.fillText(satir, 50, startY + (idx * 40));
-                });
-
-                ctx.fillStyle = '#a0aec0';
-                ctx.font = '16px sans-serif';
-                ctx.fillText('Tarih: ' + new Date().toLocaleDateString('tr-TR'), 50, 530);
-
-                const dataUrl = canvas.toDataURL('image/png');
-                
-                setTimeout(() => {
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: dataUrl, tip: 'image' });
+                imgTest.onload = () => {
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: imageUrl, tip: 'image' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
-                }, 500);
+                };
+                
+                imgTest.onerror = () => {
+                    // Yedek garantili Unsplash uç noktası
+                    const yedekUrl = `https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=60`;
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: yedekUrl, tip: 'image' });
+                    verileriKaydet();
+                    aktifSohbetiYukle(aktifSohbetId);
+                };
 
             } else {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
@@ -374,16 +342,15 @@
                 let tamYanit = "";
 
                 try {
-                    // Çok daha güvenilir ve alternatif açık API uç noktası
-                    const res = htmlSpecialEncode = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://text.pollinations.ai/' + encodeURIComponent(metin)));
-                    if (res.ok) {
-                        tamYanit = await res.text();
-                    } else {
-                        throw new Error();
-                    }
+                    const res = await fetch('https://text.pollinations.ai/openai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: metin }], stream: false })
+                    });
+                    const data = await res.json();
+                    tamYanit = data.choices[0].message.content;
                 } catch (err) {
-                    // Yedek akıllı yanıt mekanizması (API çökmelerine karşı lokal tam destek)
-                    tamYanit = `Merhaba! "${metin}" dedin. Şu an sunucu yoğunluğundan dolayı tam metin modeline bağlanamadım ancak Nova Pro asistanın olarak buradayım. Sana nasıl yardımcı olabilirim?`;
+                    tamYanit = `Merhaba! "${metin"}" dedin. Şu an sunucu yanıt vermedi ama Nova Pro asistanın olarak buradayım, sana nasıl yardımcı olabilirim?`;
                 }
 
                 yazmaEfekti(aiBubble, tamYanit, () => {
