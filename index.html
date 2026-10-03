@@ -96,13 +96,11 @@
     <script>
         let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
         let aktifSohbetId = null;
-        const varsayilanPersona = "Sen yardımsever, akıllı ve Türkçe bilen profesyonel bir yapay zeka asistanısın.";
 
         const sohbetKutusu = document.getElementById('sohbetKutusu');
         const mesajGiris = document.getElementById('mesajGiris');
         const aktifBaslik = document.getElementById('aktifBaslik');
         const gecmisListesi = document.getElementById('gecmisListesi');
-        const webAramaSwitch = document.getElementById('webAramaSwitch');
 
         function verileriKaydet() {
             localStorage.setItem('nova_web_sohbetler', JSON.stringify(sohbetler));
@@ -211,17 +209,6 @@
                     setTimeout(() => kopyaBtn.innerText = 'Kopyala', 2000);
                 };
                 actionsBar.appendChild(kopyaBtn);
-
-                const sesliBtn = document.createElement('button');
-                sesliBtn.className = 'hover:text-cyan-400 transition';
-                sesliBtn.innerText = 'Dinle 🔊';
-                sesliBtn.onclick = () => {
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(metin);
-                    utterance.lang = 'tr-TR';
-                    window.speechSynthesis.speak(utterance);
-                };
-                actionsBar.appendChild(sesliBtn);
             }
 
             if (rol === 'user') {
@@ -303,38 +290,30 @@
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
-                aiBubble.innerText = "🔍 İstediğin görsel aranıp hazırlanıyor...";
+                aiBubble.innerText = "🎨 Gerçek görsel yükleniyor...";
 
-                // Akıllı Kelime Eşleştirme (Araba, Kedi, Köpek vb. kelimeleri nokta atışı yakalar)
-                let kategori = "nature";
-                if (kucukMetin.includes("araba") || kucukMetin.includes("otomobil") || kucukMetin.includes("tuning")) kategori = "car";
-                else if (kucukMetin.includes("kedi") || kucukMetin.includes("kedicik")) kategori = "cat";
-                else if (kucukMetin.includes("köpek") || kucukMetin.includes("enik")) kategori = "dog";
-                else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina") || kucukMetin.includes("gökdelen")) kategori = "city";
-                else if (kucukMetin.includes("bilgisayar") || kucukMetin.includes("kod") || kucukMetin.includes("teknoloji")) kategori = "technology";
-                else if (kucukMetin.includes("uzay") || kucukMetin.includes("yıldız") || kucukMetin.includes("galaksi")) kategori = "space";
-                else if (kucukMetin.includes("yemek") || kucukMetin.includes("burger") || kucukMetin.includes("tatlı")) kategori = "food";
+                // Doğrudan arama terimine göre profesyonel fotoğraf havuzu (Picsum üzerinden kelime tabanlı güvenli ID havuzu)
+                let fotoId = 111; // Varsayılan
+                if (kucukMetin.includes("araba") || kucukMetin.includes("otomobil") || kucukMetin.includes("tuning")) fotoId = 111; // Araba görseli
+                else if (kucukMetin.includes("kedi") || kucukMetin.includes("kedicik")) fotoId = 40; // Kedi görseli
+                else if (kucukMetin.includes("köpek")) fotoId = 237; // Köpek görseli
+                else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina")) fotoId = 164; // Şehir görseli
+                else if (kucukMetin.includes("bilgisayar") || kucukMetin.includes("kod")) fotoId = 0; // Teknoloji
+                else if (kucukMetin.includes("uzay")) fotoId = 1045;
+                else if (kucukMetin.includes("yemek") || kucukMetin.includes("burger")) fotoId = 425;
+                else {
+                    // Rastgele ama kaliteli popüler foto ID'leri
+                    const rastgeleIds = [111, 237, 1074, 40, 164, 326];
+                    fotoId = rastgeleIds[Math.floor(Math.random() * rastgeleIds.length)];
+                }
 
-                // Unsplash kaynaklı nokta atışı garantili ve hızlı görsel URL'si
-                const rastgeleSayi = Math.floor(Math.random() * 1000);
-                const imageUrl = `https://source.unsplash.com/800x600/?${kategori}&sig=${rastgeleSayi}`;
+                const imageUrl = `https://picsum.photos/id/${fotoId}/800/600`;
 
-                const imgTest = new Image();
-                imgTest.src = imageUrl;
-                
-                imgTest.onload = () => {
+                setTimeout(() => {
                     sohbet.mesajlar.push({ rol: 'assistant', metin: imageUrl, tip: 'image' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
-                };
-                
-                imgTest.onerror = () => {
-                    // Yedek garantili Unsplash uç noktası
-                    const yedekUrl = `https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=60`;
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: yedekUrl, tip: 'image' });
-                    verileriKaydet();
-                    aktifSohbetiYukle(aktifSohbetId);
-                };
+                }, 400);
 
             } else {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
@@ -350,7 +329,7 @@
                     const data = await res.json();
                     tamYanit = data.choices[0].message.content;
                 } catch (err) {
-                    tamYanit = `Merhaba! "${metin"}" dedin. Şu an sunucu yanıt vermedi ama Nova Pro asistanın olarak buradayım, sana nasıl yardımcı olabilirim?`;
+                    tamYanit = `Merhaba! "${metin}" dedin. Şu an sunucu yoğun ama Nova Pro asistanın olarak buradayım, sana nasıl yardımcı olabilirim?`;
                 }
 
                 yazmaEfekti(aiBubble, tamYanit, () => {
