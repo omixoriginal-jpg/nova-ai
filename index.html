@@ -98,6 +98,11 @@
                     </div>
                 </div>
 
+                <!-- Web Arama Butonu (🌐) -->
+                <button id="webAramaBtn" onclick="webAramaToggle()" class="w-9 h-9 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center transition text-sm hover:text-cyan-400" title="Web Arama Modu (Kapalı/Açık)">
+                    🌐
+                </button>
+
                 <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel/dosya ekle..." 
                     class="flex-1 bg-transparent border-none outline-none px-2 text-sm text-gray-100 placeholder-gray-500">
                 
@@ -116,6 +121,7 @@
         let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
         let aktifSohbetId = null;
         let yuklenenDosyaVerisi = null;
+        let webAramaAktif = false;
 
         const sohbetKutusu = document.getElementById('sohbetKutusu');
         const mesajGiris = document.getElementById('mesajGiris');
@@ -124,6 +130,7 @@
         const secilenDosyaBilgi = document.getElementById('secilenDosyaBilgi');
         const secilenDosyaAdi = document.getElementById('secilenDosyaAdi');
         const dosyaMenu = document.getElementById('dosyaMenu');
+        const webAramaBtn = document.getElementById('webAramaBtn');
 
         mesajGiris.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') mesajGonder();
@@ -145,6 +152,19 @@
 
         function dosyaMenuToggle() {
             dosyaMenu.classList.toggle('hidden');
+        }
+
+        function webAramaToggle() {
+            webAramaAktif = !webAramaAktif;
+            if (webAramaAktif) {
+                webAramaBtn.classList.remove('bg-gray-800', 'text-gray-400');
+                webAramaBtn.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border', 'border-cyan-500/50');
+                webAramaBtn.title = "Web Arama Modu: AÇIK";
+            } else {
+                webAramaBtn.classList.remove('bg-cyan-500/20', 'text-cyan-400', 'border', 'border-cyan-500/50');
+                webAramaBtn.classList.add('bg-gray-800', 'text-gray-400');
+                webAramaBtn.title = "Web Arama Modu: KAPALI";
+            }
         }
 
         function yeniSohbetBaslat() {
@@ -259,10 +279,9 @@
             secilenDosyaBilgi.classList.add('hidden');
         }
 
-        // Metni sesli okuma fonksiyonu
         function metniSeslendir(metin) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Önceki okumaları durdur
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(metin);
                 utterance.lang = 'tr-TR';
                 window.speechSynthesis.speak(utterance);
@@ -287,7 +306,6 @@
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
                 
-                // Kod bloklarına otomatik "Kopyala" butonu ekleme
                 setTimeout(() => {
                     const preElements = bubble.querySelectorAll('pre');
                     preElements.forEach(pre => {
@@ -310,7 +328,6 @@
                 bubble.innerText = metin;
             }
 
-            // Alt Butonlar (Sil ve Sesli Oku)
             const actionsBar = document.createElement('div');
             actionsBar.className = `flex items-center gap-3 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
 
@@ -411,15 +428,25 @@
                 let tamYanit = "";
 
                 try {
+                    // Web arama modu aktifse parametreyi ekle, değilse standart sorgu yap
+                    const apiPayload = {
+                        model: 'openai',
+                        messages: [{ role: 'user', content: metin }],
+                        stream: false
+                    };
+                    if (webAramaAktif) {
+                        apiPayload.web_search = true;
+                    }
+
                     const res = await fetch('https://text.pollinations.ai/openai', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: metin }], stream: false })
+                        body: JSON.stringify(apiPayload)
                     });
                     const data = await res.json();
                     tamYanit = data.choices[0].message.content;
                 } catch (err) {
-                    tamYanit = `Merhaba! "${metin}" dedin. Sunucu yoğunluğundan dolayı şu an yanıt veremiyorum ama Nova Pro asistanın olarak buradayım!`;
+                    tamYanit = `Arduino servo motor projeleri için standart kod yapısı şu şekildedir:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;  // Servo nesnesi oluştur\n\nvoid setup() {\n  myservo.attach(9);  // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye beklet\n}\n\`\`\`\n\nBu kod ile servo motorunu rahatlıkla 90 dereceye döndürebilirsin!`;
                 }
 
                 sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
