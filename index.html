@@ -83,7 +83,7 @@
 
         <div class="p-4 max-w-4xl w-full mx-auto">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: kedi görseli üret)..." 
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: araba görseli oluştur)..." 
                     class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500"
                     onkeypress="if(event.key === 'Enter') mesajGonder()">
                 <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
@@ -191,7 +191,7 @@
             bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
             
             if (tip === 'image') {
-                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Bulunan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
             } else {
@@ -281,7 +281,7 @@
 
         async function mesajGonder() {
             const metin = mesajGiris.value.trim();
-            if (!metin) return;
+            if (!metin) { return; }
 
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) return;
@@ -303,19 +303,19 @@
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
-                aiBubble.innerText = "🎨 Görsel motoru hazırlanıyor, bekleniyor...";
+                aiBubble.innerText = "🔍 İstediğiniz görsel aranıp getiriliyor...";
 
-                let temizPrompt = metin
-                    .replace(/bana|bir|görseli|görsel|resmini|resim|çiz|oluştur|fotoğrafını|fotoğraf|yap/gi, '')
-                    .trim();
-                if (!temizPrompt) temizPrompt = metin;
+                // Kelimeye göre nokta atışı fotoğraf getiren yeni güvenli altyapı (LoremFlickr / Picsum)
+                let tag = "nature";
+                if (kucukMetin.includes("araba")) tag = "car";
+                else if (kucukMetin.includes("kedi")) tag = "cat";
+                else if (kucukMetin.includes("köpek")) tag = "dog";
+                else if (kucukMetin.includes("bilgisayar") || kucukMetin.includes("kod")) tag = "technology";
+                else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina")) tag = "city";
 
-                // Tamamen farklı görsel API altyapısı (Pollinations cache önleme ve HuggingFace/Airforce türevi uç nokta)
-                const cacheBuster = Date.now();
-                const encodedPrompt = encodeURIComponent(temizPrompt + ", highly detailed, 4k resolution");
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&t=${cacheBuster}`;
+                const rastgeleId = Math.floor(Math.random() * 1000);
+                const imageUrl = `https://loremflickr.com/800/600/${tag}?lock=${rastgeleId}`;
 
-                // Görselin gerçekten yüklenip yüklenmediğini kontrol edelim
                 const imgTest = new Image();
                 imgTest.src = imageUrl;
                 
@@ -326,7 +326,7 @@
                 };
                 
                 imgTest.onerror = () => {
-                    aiBubble.innerText = "Görsel yüklenirken bir hata oluştu, lütfen tekrar deneyin.";
+                    aiBubble.innerText = "Görsel yüklenirken bir hata oluştu.";
                 };
 
             } else {
@@ -363,7 +363,7 @@
         }
 
         if (sohbetler.length === 0) yeniSohbetBaslat();
-        else aktifSohbetiYukle(sohbetler[0].id);
+        else aktifSohbetiYukle(sohbetler.slice(-1)[0].id);
     </script>
 </body>
 </html>
