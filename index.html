@@ -360,21 +360,34 @@
             aktifSohbetiYukle(aktifSohbetId);
         }
 
-        // Güçlü ve Hatasız Yerel Bilgi Motoru
+        // Geliştirilmiş ve Doğal Konuşma Destekli Akıllı Yanıt Motoru
         function akilliYanitUret(metin) {
-            const m = metin.toLowerCase();
+            const m = metin.toLowerCase().trim();
 
-            if (m.includes("karadelik") || m.includes("kara delik") || m.includes("uzay")) {
-                return `### Kara Delikler Hakkında Bilgiler\n\n**Kara delikler**, uzayda kütle çekiminin o kadar güçlü olduğu bölgelerdir ki, hiçbir madde veya ışık bu çekimden kaçamaz.\n\n* **Nasıl Oluşurlar?**: Büyük kütleli yıldızların yakıtlarını tüketip kendi kütle çekimleri altında çökmesi (süpernova patlaması) sonucu meydana gelirler.\n* **Olay Ufku**: Kara deliğin etrafındaki, geri dönüşün artık imkansız olduğu sınırdır.\n* **Tekillik**: Her şeyin sonsuz bir yoğunlukta sıkıştığı merkez noktasıdır.`;
-            } else if (m.includes("arduino") || m.includes("kod") || m.includes("servo") || m.includes("program")) {
-                return `Arduino servo motor kontrol uygulaması için örnek kaynak kod:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;\n\nvoid setup() {\n  myservo.attach(9); // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye bekle\n}\n\`\`\``;
-            } else if (m.includes("merhaba") || m.includes("selam") || m.includes("naber")) {
-                return `Selam! Ben **NOVA Pro AI**. Sana bugün hangi konuda yardımcı olabilirim?`;
-            } else if (m.includes("nasılsın")) {
-                return `Çok iyiyim, teşekkür ederim! Sen nasılsın, hangi projeler üzerinde çalışıyorsun?`;
-            } else {
-                return `Harika bir konu! **"${metin}"** hakkında yaptığım analizlere göre, bu başlık modern bilim ve teknoloji dünyasında oldukça popülerdir. Sistemli bir şekilde araştırılarak harika projelere dönüştürülebilir.`;
+            // Günlük konuşma kalıpları
+            if (m.includes("teşekkür") || m.includes("sağ ol") || m.includes("teşekkürler")) {
+                return `Rica ederim! Sana yardımcı olabildigime sevindim. Başka bir sorun ya da merak ettiğin bir şey var mı?`;
             }
+            if (m.includes("merhaba") || m.includes("selam") || m.includes("naber") || m.includes("hey")) {
+                return `Selam! Ben **NOVA Pro AI**. Bugün sana hangi konuda yardımcı olabilirim?`;
+            }
+            if (m.includes("nasılsın") || m.includes("ne haber")) {
+                return `Harikayım, teşekkürler! Sen nasılsın? Hangi projeler veya konular üzerinde çalışıyorsun?`;
+            }
+            if (m.includes("adın ne") || m.includes("kimsin")) {
+                return `Ben **NOVA Pro AI**, senin kişisel web asistanınım!`;
+            }
+
+            // Bilim ve Teknoloji Konuları
+            if (m.includes("karadelik") || m.includes("kara delik") || m.includes("uzay")) {
+                return `### Kara Delikler Hakkında\n\n**Kara delikler**, uzayda kütle çekiminin devasa boyutlarda olduğu, ışığın dahi kaçamadığı bölgelerdir.\n\n* **Oluşumu**: Büyük kütleli yıldızların süpernova patlamasıyla çökmesi sonucu oluşur.\n* **Olay Ufku**: Geri dönüşü olmayan sınırdır.\n* **Tekillik**: Yoğunluğun sonsuz olduğu merkezdir.`;
+            } 
+            if (m.includes("arduino") || m.includes("kod") || m.includes("servo") || m.includes("program")) {
+                return `Arduino servo motor kontrol kodu örneği:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;\n\nvoid setup() {\n  myservo.attach(9); // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye bekle\n}\n\`\`\``;
+            }
+
+            // Genel yedek akıllı yanıt
+            return `Harika bir soru! **"${metin}"** konusu hakkında yaptığım incelemelere göre, bu alan oldukça heyecan verici ve detaylı araştırmalar gerektiriyor. Bu konuda öğrenmek istediğin özel bir detay var mı?`;
         }
 
         async function mesajGonder() {
@@ -428,7 +441,7 @@
             if (gorselIstegiMi) {
                 let fotoId = 111;
                 if (kucukMetin.includes("kedi")) fotoId = 40;
-                else if (kucukMetin.includes("köpek")) fotoId = 237;
+                else if (kucukMetin.includes("köpek")) fotoId= 237;
                 else if (kucukMetin.includes("şehir")) fotoId = 164;
                 else if (kucukMetin.includes("bilgisayar")) fotoId = 0;
 
@@ -441,7 +454,6 @@
                 }, 600);
 
             } else {
-                // Harici API kullanılmadığı için ENOSPC veya 500 hataları asla yaşanmaz
                 setTimeout(() => {
                     const tamYanit = akilliYanitUret(metin);
                     sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
