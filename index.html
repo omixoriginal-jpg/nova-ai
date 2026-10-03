@@ -91,7 +91,7 @@
         <!-- Alt Girdi Paneli -->
         <div class="p-4 max-w-4xl w-full mx-auto">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: kedi görseli oluştur)..." 
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste..." 
                     class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500"
                     onkeypress="if(event.key === 'Enter') mesajGonder()">
                 
@@ -326,26 +326,44 @@
             sohbetListesiniGuncelle();
 
             const kucukMetin = metin.toLowerCase();
-            // Geliştirilmiş görsel algılama filtresi
             const gorselIstegiMi = kucukMetin.includes("görsel") || kucukMetin.includes("resim") || kucukMetin.includes("çiz") || kucukMetin.includes("oluştur") || kucukMetin.includes("fotoğraf") || kucukMetin.includes("yap");
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
                 aiBubble.innerText = "🎨 Harika bir görsel hazırlanıyor, lütfen bekleyin...";
 
+                // Çoklu kararlı görsel yedekleme zinciri
                 const promptTemiz = encodeURIComponent(metin);
-                const imageUrl = `https://image.pollinations.ai/prompt/${promptTemiz}?width=1024&height=1024&nologo=true`;
+                const imageUrls = [
+                    `https://image.pollinations.ai/prompt/${promptTemiz}?width=1024&height=1024&nologo=true`,
+                    `https://api.airforce/v1/image/generate?prompt=${promptTemiz}&size=1024x1024`
+                ];
 
-                const img = new Image();
-                img.src = imageUrl;
-                img.onload = () => {
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: imageUrl, tip: 'image' });
+                let imgSecilen = "";
+                let yuklendi = false;
+
+                for (let url of imageUrls) {
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.src = url;
+                            img.onload = () => { imgSecilen = url; resolve(); };
+                            img.onerror = reject;
+                        });
+                        yuklendi = true;
+                        break;
+                    } catch(e) {
+                        continue;
+                    }
+                }
+
+                if (yuklendi) {
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: imgSecilen, tip: 'image' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
-                };
-                img.onerror = () => {
-                    aiBubble.innerText = "[HATA]: Görsel oluşturulamadı.";
-                };
+                } else {
+                    aiBubble.innerText = "[HATA]: Görsel sunucuları şu an yanıt vermiyor.";
+                }
 
             } else {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
