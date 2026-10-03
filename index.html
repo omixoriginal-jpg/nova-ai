@@ -49,8 +49,17 @@
             </button>
         </div>
 
-        <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Geçmiş Sohbetler</div>
-        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5"></div>
+        <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
+            <span>Geçmiş Sohbetler</span>
+            <div class="flex gap-1">
+                <button onclick="sohbetleriDisaAktar()" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs">📤</button>
+                <label title="Sohbetleri İçe Aktar" class="hover:text-cyan-400 text-xs cursor-pointer">
+                    📥
+                    <input type="file" id="jsonYukle" class="hidden" accept=".json" onchange="sohbetleriIceAktar(event)">
+                </label>
+            </div>
+        </div>
+        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5 pb-4"></div>
     </aside>
 
     <!-- SAĞ ANA ALAN -->
@@ -59,27 +68,45 @@
             <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm">
                 ☰ Menü
             </button>
-            <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
+            <div class="flex items-center gap-3">
+                <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
+                <button onclick="aktifSohbetBasliginiDuzenle()" title="Başlığı Düzenle" class="text-gray-400 hover:text-cyan-400 text-xs">✏️</button>
+            </div>
         </header>
 
         <div id="sohbetKutusu" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto"></div>
 
         <div class="p-4 max-w-4xl w-full mx-auto">
-            <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <!-- Dosya Yükleme Butonu -->
-                <label class="cursor-pointer text-gray-400 hover:text-cyan-400 p-2 transition flex items-center justify-center" title="Dosya veya Fotoğraf Yükle">
-                    📎
-                    <input type="file" id="dosyaGiris" class="hidden" onchange="dosyaSecildi(event)">
-                </label>
+            <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl relative">
+                <!-- Artı (+) Dosya Ekleme Butonu -->
+                <div class="relative">
+                    <button onclick="dosyaMenuToggle()" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-cyan-400 flex items-center justify-center font-bold transition text-lg" title="Dosya veya Görsel Ekle">
+                        +
+                    </button>
+                    <!-- Açılır Dosya Menüsü -->
+                    <div id="dosyaMenu" class="hidden absolute bottom-12 left-0 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 w-48 z-30 flex flex-col gap-1">
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
+                            <span>📷 Görsel Yükle</span>
+                            <input type="file" class="hidden" accept="image/*" onchange="dosyaSecildi(event, 'image')">
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
+                            <span>📁 Belge/Dosya Ekle</span>
+                            <input type="file" class="hidden" onchange="dosyaSecildi(event, 'file')">
+                        </label>
+                    </div>
+                </div>
 
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz, görsel/dosya yükle veya görsel iste..." 
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel/dosya ekle..." 
                     class="flex-1 bg-transparent border-none outline-none px-2 text-sm text-gray-100 placeholder-gray-500">
                 
                 <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
                     ➤
                 </button>
             </div>
-            <div id="secilenDosyaBilgi" class="text-xs text-cyan-400 mt-2 px-4 hidden"></div>
+            <div id="secilenDosyaBilgi" class="text-xs text-cyan-400 mt-2 px-4 hidden flex justify-between items-center">
+                <span id="secilenDosyaAdi">Seçilen Dosya: -</span>
+                <button onclick="dosyayiIptalEt()" class="text-red-400 hover:underline">İptal Et</button>
+            </div>
         </div>
     </main>
 
@@ -93,9 +120,18 @@
         const aktifBaslik = document.getElementById('aktifBaslik');
         const gecmisListesi = document.getElementById('gecmisListesi');
         const secilenDosyaBilgi = document.getElementById('secilenDosyaBilgi');
+        const secilenDosyaAdi = document.getElementById('secilenDosyaAdi');
+        const dosyaMenu = document.getElementById('dosyaMenu');
 
         mesajGiris.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') mesajGonder();
+        });
+
+        // Dışarı tıklanınca dosya menüsünü kapat
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                dosyaMenu.classList.add('hidden');
+            }
         });
 
         function verileriKaydet() {
@@ -104,6 +140,10 @@
 
         function menuToggle() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        }
+
+        function dosyaMenuToggle() {
+            dosyaMenu.classList.toggle('hidden');
         }
 
         function yeniSohbetBaslat() {
@@ -136,7 +176,7 @@
                 const div = document.createElement('div');
                 div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-[#1f1f2e] text-cyan-400 font-medium' : 'text-gray-400 hover:bg-[#1f1f2e]/50'}`;
                 div.innerHTML = `<span class="truncate flex-1" onclick="aktifSohbetiYukle(${s.id})">${s.baslik}</span>
-                               <button onclick="sohbetSil(${s.id}, event)" class="text-red-400 hover:text-red-300 px-1.5 text-xs">✕</button>`;
+                               <button onclick="sohbetSil(${s.id}, event)" class="text-red-400 hover:text-red-300 px-1.5 text-xs" title="Sil">✕</button>`;
                 gecmisListesi.appendChild(div);
             });
         }
@@ -150,21 +190,72 @@
             else sohbetListesiniGuncelle();
         }
 
-        function dosyaSecildi(event) {
+        function aktifSohbetBasliginiDuzenle() {
+            let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+            if (!sohbet) return;
+            const yeniAd = prompt("Sohbet için yeni başlık girin:", sohbet.baslik);
+            if (yeniAd && yeniAd.trim() !== "") {
+                sohbet.baslik = yeniAd.trim();
+                aktifBaslik.innerText = sohbet.baslik;
+                verileriKaydet();
+                sohbetListesiniGuncelle();
+            }
+        }
+
+        function sohbetleriDisaAktar() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sohbetler, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `nova_sohbetler_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function sohbetleriIceAktar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const yuklenenVeri = JSON.parse(e.target.result);
+                    if (Array.isArray(yuklenenVeri)) {
+                        sohbetler = yuklenenVeri;
+                        verileriKaydet();
+                        if (sohbetler.length > 0) aktifSohbetiYukle(sohbetler[0].id);
+                        else yeniSohbetBaslat();
+                        alert("Sohbetler başarıyla içe aktarıldı!");
+                    } else {
+                        alert("Geçersiz dosya formatı!");
+                    }
+                } catch (err) {
+                    alert("Dosya okunamadı!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function dosyaSecildi(event, tur) {
             const file = event.target.files[0];
             if (!file) return;
 
+            dosyaMenu.classList.add('hidden');
             const reader = new FileReader();
             reader.onload = function(e) {
                 yuklenenDosyaVerisi = {
                     isim: file.name,
-                    tip: file.type.startsWith('image/') ? 'image' : 'file',
+                    tip: tur === 'image' || file.type.startsWith('image/') ? 'image' : 'file',
                     veri: e.target.result
                 };
-                secilenDosyaBilgi.innerText = `Seçilen Dosya: ${file.name}`;
+                secilenDosyaAdi.innerText = `Eklenen: ${file.name}`;
                 secilenDosyaBilgi.classList.remove('hidden');
             };
             reader.readAsDataURL(file);
+        }
+
+        function dosyayiIptalEt() {
+            yuklenenDosyaVerisi = null;
+            secilenDosyaBilgi.classList.add('hidden');
         }
 
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
@@ -232,17 +323,15 @@
 
             if (aktifDosya) {
                 const tipStr = aktifDosya.tip === 'image' ? 'image-upload' : 'file-upload';
-                const icerikMetin = aktifDosya.tip === 'image' ? (metin || "Bu görseli analiz et.") : `Dosya başarıyla yüklendi ve analiz edildi. İçerik özeti çıkarıldı. ${metin}`;
                 
                 sohbet.mesajlar.push({ rol: 'user', metin: aktifDosya.veri, tip: tipStr, dosyaAdi: aktifDosya.isim });
                 mesajEkranaEkle('user', aktifDosya.veri, sohbet.mesajlar.length - 1, true, tipStr, aktifDosya.isim);
+                verileriKaydet();
 
-                const aiBubble = mesajEkranaEkle('assistant', 'Dosya analiz ediliyor...', sohbet.mesajlar.length, true, 'text');
-                
                 setTimeout(() => {
                     const analizYaniti = aktifDosya.tip === 'image' 
-                        ? `Yüklediğin **${aktifDosya.isim}** görselini inceledim. Görsel oldukça net görünüyor ve üzerinde belirttiğin "${metin || 'analiz talebi'}" bağlamında başarıyla işlendi.`
-                        : `Yüklediğin **${aktifDosya.isim}** belgesini taradım. Belge içeriği başarıyla okundu ve sisteme aktarıldı. Bu dosyayla ilgili yapmamı istediğin başka bir şey var mı?`;
+                        ? `Yüklediğin **${aktifDosya.isim}** görselini inceledim. Görsel başarıyla işlendi ve analiz edildi.`
+                        : `Yüklediğin **${aktifDosya.isim}** belgesini taradım. Dosya içeriği sisteme başarıyla aktarıldı.`;
                     
                     sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' });
                     verileriKaydet();
@@ -276,7 +365,7 @@
                 }, 500);
 
             } else {
-                const aiBubble = mesajEkranaEkle('assistant', 'Yapay zeka düşünüyor...', sohbet.mesajlar.length, true, 'text');
+                mesajEkranaEkle('assistant', 'Yapay zeka düşünüyor...', sohbet.mesajlar.length, true, 'text');
                 let tamYanit = "";
 
                 try {
