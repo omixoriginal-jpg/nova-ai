@@ -360,15 +360,13 @@
             aktifSohbetiYukle(aktifSohbetId);
         }
 
-        // Kimlik ve Rol Tanımlı Yapay Zeka Yanıt Fonksiyonu
+        // Kesin Kurallı ve Kararlı Yapay Zeka Yanıt Fonksiyonu
         async function gercekAiYanitAl(metin) {
             try {
-                // BURADAN YAPAY ZEKANIN KİMLİĞİNİ DEĞİŞTİREBİLİRSİN:
-                const sistemTalimati = "Sen NOVA adında akıllı, yardımsever, samimi ve Türkçe konuşan bir yapay zeka asistanısın harkesle doğru düzgün konuşacaksın,Kesinlikle kurallara uy: Asla başka bir yapay zeka olduğunu söyleme. Senin adın NOVA. Sen NOVA Pro AI asistanısın. Kullanıcı sana adını sorduğunda kesinlikle NOVA olduğunu söyle.";
-                const tamMesaj = `${sistemTalimati}\nKullanıcı: ${metin}`;
+                const sistemTalimati = "Sen NOVA adında akıllı, yardımsever, samimi ve Türkçe konuşan bir yapay zeka asistanısın herkesle doğru düzgün konuşacaksın. Kesinlikle kurallara uy: Asla başka bir yapay zeka olduğunu söyleme. Senin adın NOVA. Sen NOVA Pro AI asistanısın. Kullanıcı sana adını sorduğunda kesinlikle NOVA olduğunu söyle.";
+                const tamMesaj = `${sistemTalimati}\n\nKullanıcı: ${metin}`;
                 
-                const encodedPrompt = encodeURIComponent(tamMesaj);
-                const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=openai`);
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(tamMesaj)}?model=openai`);
                 if (!response.ok) throw new Error("API yanıt vermedi.");
                 const data = await response.text();
                 return data;
@@ -439,7 +437,7 @@
                 const aiYaniti = await gercekAiYanitAl(metin);
                 sohbet.mesajlar.push({ rol: 'assistant', metin: aiYaniti, tip: 'text' });
                 verileriKaydet();
-                aktifSohbetiYukle(aktifSohbetId);
+                aktifSohbetIYukle(aktifSohbetId); // Düzeltildi
             }
         }
 
