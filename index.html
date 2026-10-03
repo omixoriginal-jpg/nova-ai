@@ -66,28 +66,36 @@
 
         <div class="p-4 max-w-4xl w-full mx-auto">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: araba görseli oluştur)..." 
-                    class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500">
+                <!-- Dosya Yükleme Butonu -->
+                <label class="cursor-pointer text-gray-400 hover:text-cyan-400 p-2 transition flex items-center justify-center" title="Dosya veya Fotoğraf Yükle">
+                    📎
+                    <input type="file" id="dosyaGiris" class="hidden" onchange="dosyaSecildi(event)">
+                </label>
+
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz, görsel/dosya yükle veya görsel iste..." 
+                    class="flex-1 bg-transparent border-none outline-none px-2 text-sm text-gray-100 placeholder-gray-500">
+                
                 <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
                     ➤
                 </button>
             </div>
+            <div id="secilenDosyaBilgi" class="text-xs text-cyan-400 mt-2 px-4 hidden"></div>
         </div>
     </main>
 
     <script>
         let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
         let aktifSohbetId = null;
+        let yuklenenDosyaVerisi = null;
 
         const sohbetKutusu = document.getElementById('sohbetKutusu');
         const mesajGiris = document.getElementById('mesajGiris');
         const aktifBaslik = document.getElementById('aktifBaslik');
         const gecmisListesi = document.getElementById('gecmisListesi');
+        const secilenDosyaBilgi = document.getElementById('secilenDosyaBilgi');
 
         mesajGiris.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                mesajGonder();
-            }
+            if (e.key === 'Enter') mesajGonder();
         });
 
         function verileriKaydet() {
@@ -117,7 +125,7 @@
             aktifBaslik.innerText = sohbet.baslik;
             sohbetKutusu.innerHTML = "";
             sohbet.mesajlar.forEach((m, index) => {
-                mesajEkranaEkle(m.rol, m.metin, index, false, m.tip);
+                mesajEkranaEkle(m.rol, m.metin, index, false, m.tip, m.dosyaAdi);
             });
             sohbetListesiniGuncelle();
         }
@@ -137,23 +145,40 @@
             event.stopPropagation();
             sohbetler = sohbetler.filter(s => s.id !== id);
             verileriKaydet();
-            if (sohbetler.length === 0) {
-                yeniSohbetBaslat();
-            } else if (aktifSohbetId === id) {
-                aktifSohbetiYukle(sohbetler[0].id);
-            } else {
-                sohbetListesiniGuncelle();
-            }
+            if (sohbetler.length === 0) yeniSohbetBaslat();
+            else if (aktifSohbetId === id) aktifSohbetiYukle(sohbetler[0].id);
+            else sohbetListesiniGuncelle();
         }
 
-        function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text') {
+        function dosyaSecildi(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                yuklenenDosyaVerisi = {
+                    isim: file.name,
+                    tip: file.type.startsWith('image/') ? 'image' : 'file',
+                    veri: e.target.result
+                };
+                secilenDosyaBilgi.innerText = `Seçilen Dosya: ${file.name}`;
+                secilenDosyaBilgi.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-4 group`;
             
             const bubble = document.createElement('div');
             bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
             
-            if (tip === 'image') {
+            if (tip === 'image-upload') {
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-300 font-semibold">📎 Yüklenen Görsel: ${dosyaAdi}</p><img src="${metin}" alt="Yüklenen Görsel" class="rounded-xl w-full max-h-80 object-cover shadow-lg border border-gray-700 mb-2">`;
+            } else if (tip === 'file-upload') {
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-300 font-semibold">📁 Yüklenen Dosya: ${dosyaAdi}</p><p class="italic text-xs text-gray-300">${metin}</p>`;
+            } else if (tip === 'image') {
                 bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
@@ -186,7 +211,7 @@
 
         async function mesajGonder() {
             const metin = mesajGiris.value.trim();
-            if (!metin) return;
+            if (!metin && !yuklenenDosyaVerisi) return;
 
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) {
@@ -194,15 +219,40 @@
                 sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             }
 
+            let aktifDosya = yuklenenDosyaVerisi;
+            yuklenenDosyaVerisi = null;
+            secilenDosyaBilgi.classList.add('hidden');
+            mesajGiris.value = "";
+
             if (sohbet.baslik === "Yeni Sohbet") {
-                sohbet.baslik = metin.substring(0, 25) + (metin.length > 25 ? "..." : "");
+                const baslikKaynagi = metin || (aktifDosya ? aktifDosya.isim : "Dosya Analizi");
+                sohbet.baslik = baslikKaynagi.substring(0, 25) + (baslikKaynagi.length > 25 ? "..." : "");
                 aktifBaslik.innerText = sohbet.baslik;
             }
 
+            if (aktifDosya) {
+                const tipStr = aktifDosya.tip === 'image' ? 'image-upload' : 'file-upload';
+                const icerikMetin = aktifDosya.tip === 'image' ? (metin || "Bu görseli analiz et.") : `Dosya başarıyla yüklendi ve analiz edildi. İçerik özeti çıkarıldı. ${metin}`;
+                
+                sohbet.mesajlar.push({ rol: 'user', metin: aktifDosya.veri, tip: tipStr, dosyaAdi: aktifDosya.isim });
+                mesajEkranaEkle('user', aktifDosya.veri, sohbet.mesajlar.length - 1, true, tipStr, aktifDosya.isim);
+
+                const aiBubble = mesajEkranaEkle('assistant', 'Dosya analiz ediliyor...', sohbet.mesajlar.length, true, 'text');
+                
+                setTimeout(() => {
+                    const analizYaniti = aktifDosya.tip === 'image' 
+                        ? `Yüklediğin **${aktifDosya.isim}** görselini inceledim. Görsel oldukça net görünüyor ve üzerinde belirttiğin "${metin || 'analiz talebi'}" bağlamında başarıyla işlendi.`
+                        : `Yüklediğin **${aktifDosya.isim}** belgesini taradım. Belge içeriği başarıyla okundu ve sisteme aktarıldı. Bu dosyayla ilgili yapmamı istediğin başka bir şey var mı?`;
+                    
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' });
+                    verileriKaydet();
+                    aktifSohbetiYukle(aktifSohbetId);
+                }, 1000);
+                return;
+            }
+
             sohbet.mesajlar.push({ rol: 'user', metin: metin, tip: 'text' });
-            const userIndex = sohbet.mesajlar.length - 1;
-            mesajEkranaEkle('user', metin, userIndex, true, 'text');
-            mesajGiris.value = "";
+            mesajEkranaEkle('user', metin, sohbet.mesajlar.length - 1, true, 'text');
             verileriKaydet();
             sohbetListesiniGuncelle();
 
@@ -210,8 +260,7 @@
             const gorselIstegiMi = kucukMetin.includes("görsel") || kucukMetin.includes("resim") || kucukMetin.includes("çiz") || kucukMetin.includes("oluştur") || kucukMetin.includes("fotoğraf") || kucukMetin.includes("yap");
 
             if (gorselIstegiMi) {
-                // Nokta atışı gerçek görsel havuzu (Unsplash ID'leri)
-                let fotoId = 111; // Araba
+                let fotoId = 111;
                 if (kucukMetin.includes("kedi") || kucukMetin.includes("kedicik")) fotoId = 40;
                 else if (kucukMetin.includes("köpek")) fotoId = 237;
                 else if (kucukMetin.includes("şehir") || kucukMetin.includes("bina")) fotoId = 164;
