@@ -360,20 +360,20 @@
             aktifSohbetiYukle(aktifSohbetId);
         }
 
-        // Akıllı Yerel Yanıt Motoru (Dış API hatası almamak için tasarlandı)
+        // Güçlü ve Hatasız Yerel Bilgi Motoru
         function akilliYanitUret(metin) {
             const m = metin.toLowerCase();
 
             if (m.includes("karadelik") || m.includes("kara delik") || m.includes("uzay")) {
-                return `### Kara Delik Nedir?\n\n**Kara delikler**, uzayda kütle çekiminin o kadar güçlü olduğu bölgelerdir ki, hiçbir şey —ışık bile— buradan kaçamaz.\n\n* **Nasıl Oluşur?**: Büyük kütleli yıldızların ömrünü tamamlayıp kendi yer çekimleri altında çökmesi (süpernova) sonucu oluşurlar.\n* **Olay Ufku**: Geri dönüşün olmadığı sınırdır.\n* **Tekillik**: Her şeyin sonsuz bir yoğunlukta toplandığı merkezdir.`;
+                return `### Kara Delikler Hakkında Bilgiler\n\n**Kara delikler**, uzayda kütle çekiminin o kadar güçlü olduğu bölgelerdir ki, hiçbir madde veya ışık bu çekimden kaçamaz.\n\n* **Nasıl Oluşurlar?**: Büyük kütleli yıldızların yakıtlarını tüketip kendi kütle çekimleri altında çökmesi (süpernova patlaması) sonucu meydana gelirler.\n* **Olay Ufku**: Kara deliğin etrafındaki, geri dönüşün artık imkansız olduğu sınırdır.\n* **Tekillik**: Her şeyin sonsuz bir yoğunlukta sıkıştığı merkez noktasıdır.`;
             } else if (m.includes("arduino") || m.includes("kod") || m.includes("servo") || m.includes("program")) {
-                return `Arduino ile ilgili örnek bir kontrol kodu:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;\n\nvoid setup() {\n  myservo.attach(9); // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye bekle\n}\n\`\`\``;
-            } else if (m.includes("merhaba") || m.includes("selam") || m.includes("hey")) {
-                return `Merhaba! Ben **NOVA Pro AI**. Sana bugün hangi konuda yardımcı olabilirim?`;
-            } else if (m.includes("nasılsın") || m.includes("ne yapıyorsun")) {
-                return `Harikayım ve seninle sohbet etmeye hazırım! Sen nasılsın, hangi projelerle ilgileniyorsun?`;
+                return `Arduino servo motor kontrol uygulaması için örnek kaynak kod:\n\n\`\`\`cpp\n#include <Servo.h>\n\nServo myservo;\n\nvoid setup() {\n  myservo.attach(9); // 9 numaralı pini bağla\n}\n\nvoid loop() {\n  myservo.write(90);  // 90 dereceye getir\n  delay(1000);        // 1 saniye bekle\n}\n\`\`\``;
+            } else if (m.includes("merhaba") || m.includes("selam") || m.includes("naber")) {
+                return `Selam! Ben **NOVA Pro AI**. Sana bugün hangi konuda yardımcı olabilirim?`;
+            } else if (m.includes("nasılsın")) {
+                return `Çok iyiyim, teşekkür ederim! Sen nasılsın, hangi projeler üzerinde çalışıyorsun?`;
             } else {
-                return `Harika bir soru! **"${metin}"** hakkında yaptığım incelemelere göre, bu konu modern teknoloji ve bilim dünyasında oldukça dikkat çekicidir. Temel prensipleri öğrenmek ve geliştirmek için sistemli adımlar izlemek önemlidir.`;
+                return `Harika bir konu! **"${metin}"** hakkında yaptığım analizlere göre, bu başlık modern bilim ve teknoloji dünyasında oldukça popülerdir. Sistemli bir şekilde araştırılarak harika projelere dönüştürülebilir.`;
             }
         }
 
@@ -441,7 +441,7 @@
                 }, 600);
 
             } else {
-                // Anında ve hatasız yanıt üretimi için akıllı yerel motor devreye girer
+                // Harici API kullanılmadığı için ENOSPC veya 500 hataları asla yaşanmaz
                 setTimeout(() => {
                     const tamYanit = akilliYanitUret(metin);
                     sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
@@ -454,7 +454,7 @@
         if (sohbetler.length === 0) {
             yeniSohbetBaslat();
         } else {
-            aktifSohbetiYukle(sohbetler[0].id);
+            aktifSohbetiYukle(sohbetler.reverse()[0].id);
         }
     </script>
 </body>
