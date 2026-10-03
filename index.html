@@ -28,7 +28,7 @@
     <!-- SOL MENÜ (Sidebar) -->
     <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 transition-all duration-300 z-20">
         <div class="p-5 flex flex-col items-center border-b border-gray-800/50">
-            <!-- Logo / İkon (Seçtiğimiz 1. Numara Fütüristik Logo) -->
+            <!-- Logo / İkon -->
             <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
                 <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover">
             </div>
@@ -38,9 +38,6 @@
         <div class="p-4 flex flex-col gap-2">
             <button onclick="yeniSohbetBaslat()" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
                 <span>+ Yeni Sohbet</span>
-            </button>
-            <button onclick="sistemTalimatiAyarla()" class="w-full bg-[#1f1f2e] hover:bg-[#2f3542] text-gray-300 text-sm py-2 px-4 rounded-xl transition border border-gray-800">
-                ⚙ Sistem Talimatı (Persona)
             </button>
         </div>
 
@@ -74,7 +71,7 @@
         <!-- Alt Girdi Paneli -->
         <div class="p-4 max-w-4xl w-full mx-auto">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz..." 
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste..." 
                     class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500"
                     onkeypress="if(event.key === 'Enter') mesajGonder()">
                 
@@ -89,7 +86,7 @@
     <script>
         let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
         let aktifSohbetId = null;
-        let sistemTalimati = localStorage.getItem('nova_web_persona') || "Sen yardımsever, akıllı ve Türkçe bilen profesyonel bir yapay zeka asistanısın.";
+        const varsayilanPersona = "Sen yardımsever, akıllı ve Türkçe bilen profesyonel bir yapay zeka asistanısın.";
 
         const sohbetKutusu = document.getElementById('sohbetKutusu');
         const mesajGiris = document.getElementById('mesajGiris');
@@ -99,7 +96,6 @@
 
         function verileriKaydet() {
             localStorage.setItem('nova_web_sohbetler', JSON.stringify(sohbetler));
-            localStorage.setItem('nova_web_persona', sistemTalimati);
         }
 
         function menuToggle() {
@@ -107,20 +103,12 @@
             sidebar.classList.toggle('-translate-x-full');
         }
 
-        function sistemTalimatiAyarla() {
-            const yeniPersona = prompt("Nova için özel sistem talimatı (Persona) girin:", sistemTalimati);
-            if (yeniPersona !== null) {
-                sistemTalimati = yeniPersona.trim();
-                verileriKaydet();
-            }
-        }
-
         function yeniSohbetBaslat() {
             const yeniId = Date.now();
             const yeniSohbet = {
                 id: yeniId,
                 baslik: "Yeni Sohbet",
-                mesajlar: [{ rol: "system", metin: "Merhaba! Web arama ve bağlam hafızası aktif. Nasıl yardımcı olabilirim?" }]
+                mesajlar: [{ rol: "system", metin: "Merhaba! Nova Pro hazır. İster sohbet et, ister 'bir kedi resmi çiz' diyerek görsel üret." }]
             };
             sohbetler.unshift(yeniSohbet);
             aktifSohbetiYukle(yeniId);
@@ -133,7 +121,11 @@
 
             aktifBaslik.innerText = sohbet.baslik;
             sohbetKutusu.innerHTML = "";
-            sohbet.mesajlar.forEach(m => mesajEkranaEkle(m.rol, m.metin, false));
+            sohbet.mesajlar.forEach((m, index) => {
+                if (m.rol !== 'system') {
+                    mesajEkranaEkle(m.rol, m.metin, index, false, m.tip);
+                }
+            });
             sohbetListesiniGuncelle();
         }
 
@@ -161,18 +153,79 @@
             }
         }
 
-        function mesajEkranaEkle(rol, metin, scroll = true) {
+        function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text') {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-4`;
+            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-4 group`;
             
             const bubble = document.createElement('div');
             bubble.className = `max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none'}`;
-            bubble.innerText = metin;
+            
+            if (tip === 'image') {
+                bubble.innerHTML = `<p class="mb-2 text-xs text-cyan-400 font-semibold">🎨 Oluşturulan Görsel:</p><img src="${metin}" alt="Üretilen Görsel" class="rounded-xl w-full max-h-96 object-cover shadow-lg border border-gray-700">`;
+            } else {
+                bubble.innerText = metin;
+            }
+
+            // Aksiyon Butonları
+            const actionsBar = document.createElement('div');
+            actionsBar.className = `flex items-center gap-2 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
+
+            if (rol === 'assistant' && tip !== 'image') {
+                const kopyaBtn = document.createElement('button');
+                kopyaBtn.className = 'hover:text-cyan-400 transition';
+                kopyaBtn.innerText = 'Kopyala';
+                kopyaBtn.onclick = () => {
+                    navigator.clipboard.writeText(metin);
+                    kopyaBtn.innerText = 'Kopyalandı!';
+                    setTimeout(() => kopyaBtn.innerText = 'Kopyala', 2000);
+                };
+                actionsBar.appendChild(kopyaBtn);
+            }
+
+            if (rol === 'user') {
+                const duzenleBtn = document.createElement('button');
+                duzenleBtn.className = 'hover:text-cyan-400 transition';
+                duzenleBtn.innerText = 'Düzenle';
+                duzenleBtn.onclick = () => mesajDuzenle(index);
+                actionsBar.appendChild(duzenleBtn);
+            }
+
+            const silBtn = document.createElement('button');
+            silBtn.className = 'hover:text-red-400 transition';
+            silBtn.innerText = 'Sil';
+            silBtn.onclick = () => mesajSil(index);
+            actionsBar.appendChild(silBtn);
 
             wrapper.appendChild(bubble);
+            wrapper.appendChild(actionsBar);
             sohbetKutusu.appendChild(wrapper);
             if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
             return bubble;
+        }
+
+        function mesajSil(index) {
+            let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+            if (!sohbet) return;
+
+            sohbet.mesajlar.splice(index, 1);
+            verileriKaydet();
+            aktifSohbetiYukle(aktifSohbetId);
+        }
+
+        function mesajDuzenle(index) {
+            let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+            if (!sohbet) return;
+
+            const eskiMetin = sohbet.mesajlar[index].metin;
+            const yeniMetin = prompt("Mesajınızı düzenleyin:", eskiMetin);
+            if (yeniMetin === null || yeniMetin.trim() === "") return;
+
+            sohbet.mesajlar = sohbet.mesajlar.slice(0, index);
+            verileriKaydet();
+            aktifSohbetiYukle(aktifSohbetId);
+
+            mesajGiris.value = yeniMetin;
+            mesajGonder();
         }
 
         async function mesajGonder() {
@@ -187,39 +240,73 @@
                 aktifBaslik.innerText = sohbet.baslik;
             }
 
-            sohbet.mesajlar.push({ rol: 'user', metin: metin });
-            mesajEkranaEkle('user', metin);
+            sohbet.mesajlar.push({ rol: 'user', metin: metin, tip: 'text' });
+            const userIndex = sohbet.mesajlar.length - 1;
+            mesajEkranaEkle('user', metin, userIndex, true, 'text');
             mesajGiris.value = "";
             verileriKaydet();
             sohbetListesiniGuncelle();
 
-            // Yapay zeka yanıt alanı oluştur
-            const aiBubble = mesajEkranaEkle('assistant', '');
-            let tamYanit = "";
+            // Görsel üretme isteği mi kontrol et
+            const kucukMetin = metin.toLowerCase();
+            const gorselIstegiMi = kucukMetin.includes("görsel üret") || kucukMetin.includes("resim çiz") || kucukMetin.includes("fotoğraf oluştur") || kucukMetin.includes("resmini yap");
 
-            let baglam = `Sistem Talimatı: ${sistemTalimati}\n`;
-            if (webAramaSwitch.checked) baglam += "Canlı web arama aktif, güncel bilgileri kullan.\n";
-            sohbet.mesajlar.forEach(m => baglam += `${m.rol === 'user' ? 'Kullanıcı' : 'Asistan'}: ${m.metin}\n`);
+            if (gorselIstegiMi) {
+                // Görsel Üretimi
+                const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
+                aiBubble.innerText = "🎨 Görsel hazırlanıyor, lütfen bekleyin...";
 
-            try {
-                // Güncellenmiş ve kararlı enter.pollinations.ai adresi kullanılıyor
-                const response = await fetch(`https://enter.pollinations.ai/${encodeURIComponent(baglam)}?model=openai`);
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                // Promptu İngilizceye çevirmek veya doğrudan optimize etmek için temizle
+                const promptTemiz = encodeURIComponent(metin);
+                const imageUrl = `https://image.pollinations.ai/prompt/${promptTemiz}?width=1024&height=1024&nologo=true`;
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const parca = decoder.decode(value, { stream: true });
-                    tamYanit += parca;
+                // Görselin yüklenmesini bekle
+                const img = new Image();
+                img.src = imageUrl;
+                img.onload = () => {
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: imageUrl, tip: 'image' });
+                    verileriKaydet();
+                    aktifSohbetiYukle(aktifSohbetId);
+                };
+                img.onerror = () => {
+                    aiBubble.innerText = "[HATA]: Görsel oluşturulamadı.";
+                };
+
+            } else {
+                // Normal Metin Sohbeti
+                const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
+                let tamYanit = "";
+
+                const apiMessages = [
+                    { role: "system", content: varsayilanPersona + (webAramaSwitch.checked ? " Canlı web arama aktif." : "") }
+                ];
+                sohbet.mesajlar.forEach(m => {
+                    if (m.tip !== 'image') {
+                        apiMessages.push({ role: m.rol === 'user' ? 'user' : 'assistant', content: m.metin });
+                    }
+                });
+
+                try {
+                    const response = await fetch('https://text.pollinations.ai/openai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'openai',
+                            messages: apiMessages,
+                            stream: false
+                        })
+                    });
+
+                    const data = await response.json();
+                    tamYanit = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "Yanıt alınamadı.";
+                    
                     aiBubble.innerText = tamYanit;
-                    sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
+                    verileriKaydet();
+                    aktifSohbetiYukle(aktifSohbetId);
+                } catch (err) {
+                    aiBubble.innerText = "[HATA]: Bağlantı kurulamadı. Lütfen tekrar deneyin.";
                 }
-
-                sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit });
-                verileriKaydet();
-            } catch (err) {
-                aiBubble.innerText = "[HATA]: Sunucu bağlantısı kurulamadı.";
             }
         }
 
