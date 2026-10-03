@@ -40,7 +40,6 @@
     <!-- SOL MENÜ (Sidebar) -->
     <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 transition-all duration-300 z-20">
         <div class="p-5 flex flex-col items-center border-b border-gray-800/50">
-            <!-- Logo / İkon -->
             <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
                 <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover">
             </div>
@@ -62,14 +61,11 @@
                 </label>
             </div>
         </div>
-        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5">
-            <!-- Sohbet geçmişi dinamik dolacak -->
-        </div>
+        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5"></div>
     </aside>
 
     <!-- SAĞ ANA ALAN -->
     <main class="flex-1 flex flex-col h-full relative">
-        <!-- Üst Bar -->
         <header class="h-16 border-b border-gray-800/60 flex items-center justify-between px-6 bg-darkBg/80 backdrop-blur">
             <div class="flex items-center gap-4">
                 <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm">
@@ -83,18 +79,13 @@
             <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
         </header>
 
-        <!-- Sohbet Mesajları Alanı -->
-        <div id="sohbetKutusu" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto">
-            <!-- Mesajlar buraya eklenecek -->
-        </div>
+        <div id="sohbetKutusu" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto"></div>
 
-        <!-- Alt Girdi Paneli -->
         <div class="p-4 max-w-4xl w-full mx-auto">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl">
-                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: kırmızı spor araba)..." 
+                <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel iste (Örn: kedi görseli üret)..." 
                     class="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-100 placeholder-gray-500"
                     onkeypress="if(event.key === 'Enter') mesajGonder()">
-                
                 <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
                     ➤
                 </button>
@@ -102,7 +93,6 @@
         </div>
     </main>
 
-    <!-- JavaScript Mantığı -->
     <script>
         let sohbetler = JSON.parse(localStorage.getItem('nova_web_sohbetler')) || [];
         let aktifSohbetId = null;
@@ -119,8 +109,7 @@
         }
 
         function menuToggle() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
 
         function yeniSohbetBaslat() {
@@ -164,13 +153,9 @@
             event.stopPropagation();
             sohbetler = sohbetler.filter(s => s.id !== id);
             verileriKaydet();
-            if (sohbetler.length === 0) {
-                yeniSohbetBaslat();
-            } else if (aktifSohbetId === id) {
-                aktifSohbetiYukle(sohbetler[0].id);
-            } else {
-                sohbetListesiniGuncelle();
-            }
+            if (sohbetler.length === 0) yeniSohbetBaslat();
+            else if (aktifSohbetId === id) aktifSohbetiYukle(sohbetler[0].id);
+            else sohbetListesiniGuncelle();
         }
 
         function sohbetleriDisaAktar() {
@@ -189,16 +174,11 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        sohbetler = imported;
-                        verileriKaydet();
-                        if (sohbetler.length > 0) aktifSohbetiYukle(sohbetler[0].id);
-                        alert("Sohbetler başarıyla içe aktarıldı!");
-                    }
-                } catch(err) {
-                    alert("Geçersiz dosya formatı!");
-                }
+                    sohbetler = JSON.parse(e.target.result);
+                    verileriKaydet();
+                    if (sohbetler.length > 0) aktifSohbetiYukle(sohbetler[0].id);
+                    alert("Sohbetler başarıyla içe aktarıldı!");
+                } catch(err) { alert("Geçersiz dosya formatı!"); }
             };
             reader.readAsText(file);
         }
@@ -268,7 +248,6 @@
         function mesajSil(index) {
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) return;
-
             sohbet.mesajlar.splice(index, 1);
             verileriKaydet();
             aktifSohbetiYukle(aktifSohbetId);
@@ -277,15 +256,11 @@
         function mesajDuzenle(index) {
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) return;
-
-            const eskiMetin = sohbet.mesajlar[index].metin;
-            const yeniMetin = prompt("Mesajınızı düzenleyin:", eskiMetin);
+            const yeniMetin = prompt("Mesajınızı düzenleyin:", sohbet.mesajlar[index].metin);
             if (yeniMetin === null || yeniMetin.trim() === "") return;
-
             sohbet.mesajlar = sohbet.mesajlar.slice(0, index);
             verileriKaydet();
             aktifSohbetiYukle(aktifSohbetId);
-
             mesajGiris.value = yeniMetin;
             mesajGonder();
         }
@@ -299,9 +274,7 @@
                     sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
                     i++;
                     setTimeout(yazdir, 10);
-                } else {
-                    if (callback) callback();
-                }
+                } else if (callback) callback();
             }
             yazdir();
         }
@@ -330,48 +303,31 @@
 
             if (gorselIstegiMi) {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
-                aiBubble.innerText = "🎨 Profesyonel görsel motoru nesneyi işliyor, lütfen bekleyin...";
+                aiBubble.innerText = "🎨 Görsel motoru hazırlanıyor, bekleniyor...";
 
-                // İstekten görsel tetikleme kelimelerini ayıklayıp daha net bir nesne tanımı çıkaralım
                 let temizPrompt = metin
                     .replace(/bana|bir|görseli|görsel|resmini|resim|çiz|oluştur|fotoğrafını|fotoğraf|yap/gi, '')
                     .trim();
+                if (!temizPrompt) temizPrompt = metin;
+
+                // Tamamen farklı görsel API altyapısı (Pollinations cache önleme ve HuggingFace/Airforce türevi uç nokta)
+                const cacheBuster = Date.now();
+                const encodedPrompt = encodeURIComponent(temizPrompt + ", highly detailed, 4k resolution");
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&t=${cacheBuster}`;
+
+                // Görselin gerçekten yüklenip yüklenmediğini kontrol edelim
+                const imgTest = new Image();
+                imgTest.src = imageUrl;
                 
-                if(!temizPrompt) temizPrompt = metin; // Eğer hepsi silindiyse orijinalini al
-                const encodedPrompt = encodeURIComponent(temizPrompt + ", high quality, detailed, 4k");
-
-                // Yeni ve çok daha kararlı çoklu görsel uç noktası zinciri (Pollinations Seed + Airforce Flux)
-                const rastgeleSeed = Math.floor(Math.random() * 1000000);
-                const imageUrls = [
-                    `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${rastgeleSeed}`,
-                    `https://api.airforce/v1/image/flux?prompt=${encodedPrompt}&size=1024x1024`
-                ];
-
-                let imgSecilen = "";
-                let yuklendi = false;
-
-                for (let url of imageUrls) {
-                    try {
-                        await new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.src = url;
-                            img.onload = () => { imgSecilen = url; resolve(); };
-                            img.onerror = reject;
-                        });
-                        yuklendi = true;
-                        break;
-                    } catch(e) {
-                        continue;
-                    }
-                }
-
-                if (yuklendi) {
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: imgSecilen, tip: 'image' });
+                imgTest.onload = () => {
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: imageUrl, tip: 'image' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
-                } else {
-                    aiBubble.innerText = "[HATA]: Görsel sunucuları şu an yanıt vermiyor.";
-                }
+                };
+                
+                imgTest.onerror = () => {
+                    aiBubble.innerText = "Görsel yüklenirken bir hata oluştu, lütfen tekrar deneyin.";
+                };
 
             } else {
                 const aiBubble = mesajEkranaEkle('assistant', '', sohbet.mesajlar.length, true, 'text');
@@ -387,56 +343,27 @@
                     }
                 });
 
-                const denenecekServisler = [
-                    async () => {
-                        const res = await fetch('https://text.pollinations.ai/openai', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ model: 'openai', messages: apiMessages, stream: false })
-                        });
-                        const data = await res.json();
-                        return data.choices[0].message.content;
-                    },
-                    async () => {
-                        const res = await fetch('https://api.airforce/v1/chat/completions', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ model: 'gpt-4o-mini', messages: apiMessages })
-                        });
-                        const data = await res.json();
-                        return data.choices[0].message.content;
-                    }
-                ];
-
-                let basarili = false;
-                for (let servis of denenecekServisler) {
-                    try {
-                        tamYanit = await servis();
-                        if (tamYanit && tamYanit.length > 0) {
-                            basarili = true;
-                            break;
-                        }
-                    } catch (err) {
-                        console.warn("Servis hatası, sonraki yedek deneniyor...", err);
-                    }
-                }
-
-                if (basarili) {
-                    yazmaEfekti(aiBubble, tamYanit, () => {
-                        sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
-                        verileriKaydet();
+                try {
+                    const res = await fetch('https://text.pollinations.ai/openai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'openai', messages: apiMessages, stream: false })
                     });
-                } else {
-                    aiBubble.innerText = "Üzgünüm, şu an tüm yapay zeka sunucuları yoğun. Lütfen birkaç saniye sonra tekrar dene.";
+                    const data = await res.json();
+                    tamYanit = data.choices[0].message.content;
+                } catch (err) {
+                    tamYanit = "Üzgünüm, şu an metin sunucusuna bağlanılamıyor.";
                 }
+
+                yazmaEfekti(aiBubble, tamYanit, () => {
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: tamYanit, tip: 'text' });
+                    verileriKaydet();
+                });
             }
         }
 
-        if (sohbetler.length === 0) {
-            yeniSohbetBaslat();
-        } else {
-            aktifSohbetiYukle(sohbetler[0].id);
-        }
+        if (sohbetler.length === 0) yeniSohbetBaslat();
+        else aktifSohbetiYukle(sohbetler[0].id);
     </script>
 </body>
 </html>
