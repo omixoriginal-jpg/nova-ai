@@ -651,7 +651,7 @@
                         ? `Yüklediğin **${aktifDosya.isim}** görselini taradım ve başarıyla analiz ettim.`
                         : `Yüklediğin **${aktifDosya.isim}** dosyasının içeriğini başarıyla okudum.`;
                     
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' };
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
                 }, 1000);
