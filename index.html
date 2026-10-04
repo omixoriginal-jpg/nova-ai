@@ -361,9 +361,12 @@
                 bubble.innerText = metin;
             }
 
+            wrapper.appendChild(bubble);
+
+            // Butonları balonun alt kısmına (aşağıya) yerleştiriyoruz
             if (tip !== 'typing') {
                 const actionsBar = document.createElement('div');
-                actionsBar.className = `flex items-center gap-3 mt-1.5 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
+                actionsBar.className = `flex items-center gap-3 mt-1 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
 
                 const silBtn = document.createElement('button');
                 silBtn.className = 'hover:text-red-400 transition';
@@ -371,7 +374,6 @@
                 silBtn.onclick = () => mesajSil(index);
                 actionsBar.appendChild(silBtn);
 
-                // Kullanıcı mesajlarına düzenleme (Edit) butonu ekledik
                 if (rol === 'user' && tip === 'text') {
                     const duzenleBtn = document.createElement('button');
                     duzenleBtn.className = 'hover:text-cyan-400 transition';
@@ -390,7 +392,6 @@
                 wrapper.appendChild(actionsBar);
             }
 
-            wrapper.appendChild(bubble);
             sohbetKutusu.appendChild(wrapper);
             if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
         }
@@ -403,20 +404,17 @@
             aktifSohbetiYukle(aktifSohbetId);
         }
 
-        // Mesajı Düzenleme Fonksiyonu
         function mesajiDuzenle(index, eskiMetin) {
             const yeniMetin = prompt("Mesajınızı düzenleyin:", eskiMetin);
             if (yeniMetin !== null && yeniMetin.trim() !== "") {
                 let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
                 if (!sohbet) return;
                 sohbet.mesajlar[index].metin = yeniMetin.trim();
-                // Sonraki yapay zeka yanıtını da temizle ki yeniden oluştursun
                 if (sohbet.mesajlar[index + 1] && sohbet.mesajlar[index + 1].rol === 'assistant') {
                     sohbet.mesajlar.splice(index + 1, 1);
                 }
                 verileriKaydet();
                 aktifSohbetiYukle(aktifSohbetId);
-                // Yeniden yapay zeka yanıtı tetikle
                 yapayZekaYanitiGetirVeYazdir(yeniMetin);
             }
         }
@@ -439,7 +437,6 @@
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet) return;
 
-            // Yazıyor animasyonunu ekrana ekle
             sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
             const typingIndex = sohbet.mesajlar.length - 1;
             mesajEkranaEkle('assistant', '', typingIndex, true, 'typing');
@@ -459,7 +456,7 @@
                 const aiYaniti = await gercekAiYanitAl(metin);
                 sohbet.mesajlar[typingIndex] = { rol: 'assistant', metin: aiYaniti, tip: 'text' };
                 verileriKaydet();
-                aktifSohbetIYukle ? aktifSohbetiYukle(aktifSohbetId) : aktifSohbetiYukle(aktifSohbetId);
+                aktifSohbetiYukle(aktifSohbetId); // Hatalı fonksiyon adı düzeltildi
             }
         }
 
@@ -507,7 +504,6 @@
             verileriKaydet();
             sohbetListesiniGuncelle();
 
-            // Yapay zeka yanıtını tetikle
             await yapayZekaYanitiGetirVeYazdir(metin);
         }
 
