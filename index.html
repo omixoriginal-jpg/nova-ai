@@ -55,6 +55,14 @@
         
         .lang-badge { position: absolute; top: 8px; left: 12px; color: #00f2fe; font-size: 11px; font-family: monospace; font-weight: bold; text-transform: uppercase; z-index: 10; }
 
+        /* Menü Açılış/Kapanış Animasyonu */
+        #sidebar {
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+        }
+        .sidebar-kapali {
+            transform: translateX(-100%);
+        }
+
         /* Yazıyor Animasyonu için Noktalar */
         @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
         .typing-dot span { animation: blink 1.4s infinite both; height: 7px; width: 7px; background-color: #00f2fe; border-radius: 50%; display: inline-block; margin: 0 1px; }
@@ -75,8 +83,8 @@
 <body class="bg-darkBg text-gray-100 font-sans h-screen flex overflow-hidden">
 
     <!-- SOL MENÜ -->
-    <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 transition-all duration-300 z-20 absolute md:relative -translate-x-full md:translate-x-0 h-full">
-        <div class="p-5 flex flex-col items-center border-b border-gray-800/50">
+    <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 z-30 absolute md:relative h-full shadow-2xl md:shadow-none">
+        <div class="p-5 flex flex-col items-center border-b border-gray-800/50 relative">
             <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
                 <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
             </div>
@@ -110,10 +118,10 @@
     </aside>
 
     <!-- SAĞ ANA ALAN -->
-    <main class="flex-1 flex flex-col h-full relative">
-        <header class="h-16 border-b border-gray-800/60 flex items-center justify-between px-6 bg-darkBg/80 backdrop-blur">
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        <header class="h-16 border-b border-gray-800/60 flex items-center justify-between px-6 bg-darkBg/80 backdrop-blur z-20">
             <div class="flex items-center gap-3">
-                <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm">
+                <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm transition hover:bg-gray-800/50">
                     ☰ Menü
                 </button>
                 <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
@@ -122,13 +130,13 @@
             
             <!-- Tema Değiştirici Buton (🌙/☀️) -->
             <button onclick="temaToggle()" id="temaBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-yellow-400 flex items-center justify-center transition text-base" title="Temayı Değiştir">
-                ☀️
+                ☀️️
             </button>
         </header>
 
         <div id="sohbetKutusu" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto"></div>
 
-        <div class="p-4 max-w-4xl w-full mx-auto">
+        <div class="p-4 max-w-4xl w-full mx-auto z-20">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl relative">
                 <!-- Artı (+) Dosya Ekleme Butonu -->
                 <div class="relative">
@@ -189,6 +197,11 @@
         const dosyaMenu = document.getElementById('dosyaMenu');
         const webAramaBtn = document.getElementById('webAramaBtn');
 
+        // Sayfa açıldığında mobil cihazlarda menüyü otomatik kapat
+        if (window.innerWidth < 768) {
+            sidebar.classList.add('sidebar-kapali');
+        }
+
         mesajGiris.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -219,7 +232,7 @@
         }
 
         function menuToggle() {
-            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('sidebar-kapali');
         }
 
         function dosyaMenuToggle() {
@@ -244,7 +257,7 @@
             const yeniSohbet = { id: yeniId, baslik: "Yeni Sohbet", mesajlar: [] };
             sohbetler.unshift(yeniSohbet);
             aktifSohbetiYukle(yeniId);
-            if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
+            if(window.innerWidth < 768) sidebar.classList.add('sidebar-kapali');
         }
 
         function aktifSohbetiYukle(id) {
@@ -258,7 +271,7 @@
                 mesajEkranaEkle(m.rol, m.metin, index, false, m.tip, m.dosyaAdi);
             });
             sohbetListesiniGuncelle();
-            if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
+            if(window.innerWidth < 768) sidebar.classList.add('sidebar-kapali');
         }
 
         function sohbetListesiniGuncelle(filtre = "") {
