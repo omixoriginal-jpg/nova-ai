@@ -69,7 +69,7 @@
         .typing-dot span:nth-child(2) { animation-delay: .2s; }
         .typing-dot span:nth-child(3) { animation-delay: .4s; }
 
-        /* Aydınlık Tema Sınıfları */
+        /* Aydınlık Tema Sınıfları (Varsayılan Light Mod) */
         html:not(.dark) { background-color: #f3f4f6 !important; color: #1f2937 !important; }
         html:not(.dark) body { background-color: #f3f4f6; color: #1f2937; }
         html:not(.dark) aside { background-color: #e5e7eb !important; border-color: #d1d5db !important; }
@@ -83,38 +83,61 @@
 <body class="bg-darkBg text-gray-100 font-sans h-screen flex overflow-hidden">
 
     <!-- SOL MENÜ -->
-    <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 z-30 absolute md:relative h-full shadow-2xl md:shadow-none">
-        <div class="p-5 flex flex-col items-center border-b border-gray-800/50 relative">
-            <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
-                <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
+    <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 z-30 absolute md:relative h-full shadow-2xl md:shadow-none justify-between">
+        <div>
+            <div class="p-5 flex flex-col items-center border-b border-gray-800/50 relative">
+                <div class="w-16 h-16 rounded-full bg-[#12233f] flex items-center justify-center mb-2 shadow-lg border border-cyan-500/30 overflow-hidden">
+                    <img src="logo.jpg" alt="NOVA Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                </div>
+                <h1 class="text-lg font-bold tracking-wider text-cyan-400">NOVA PRO AI</h1>
             </div>
-            <h1 class="text-lg font-bold tracking-wider text-cyan-400">NOVA PRO AI</h1>
+
+            <div class="p-4 flex flex-col gap-2">
+                <button onclick="yeniSohbetBaslat()" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                    <span>+ Yeni Sohbet</span>
+                </button>
+            </div>
+
+            <div class="px-4 py-1 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
+                <span>Geçmiş Sohbetler</span>
+                <div class="flex gap-1">
+                    <button onclick="sohbetleriDisaAktar()" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs">📤</button>
+                    <label title="Sohbetleri İçe Aktar" class="hover:text-cyan-400 text-xs cursor-pointer">
+                        📥
+                        <input type="file" id="jsonYukle" class="hidden" accept=".json" onchange="sohbetleriIceAktar(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sohbet Arama Çubuğu -->
+            <div class="px-4 py-2">
+                <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..." oninput="sohbetAramaYap(this.value)"
+                    class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
+            </div>
+
+            <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5 pb-4 max-h-[calc(100vh-320px)]"></div>
         </div>
 
-        <div class="p-4 flex flex-col gap-2">
-            <button onclick="yeniSohbetBaslat()" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-                <span>+ Yeni Sohbet</span>
+        <!-- SOL ALT KÖŞE: ATMOSFER MODLARI BUTONU VE MENÜSÜ -->
+        <div class="p-4 border-t border-gray-800/50 relative">
+            <div id="atmosferMenu" class="hidden absolute bottom-16 left-4 right-4 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 z-40 flex flex-col gap-1 max-h-72 overflow-y-auto">
+                <div class="text-xs font-bold text-cyan-400 px-2 py-1 uppercase tracking-wider border-b border-gray-800 mb-1">Atmosfer Modları (10)</div>
+                <button onclick="atmosferDegistir('derinUzay')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌌 Derin Uzay</button>
+                <button onclick="atmosferDegistir('siberpunk')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">⚡ Siberpunk Neon</button>
+                <button onclick="atmosferDegistir('matris')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">💻 Kodlama Matrisi</button>
+                <button onclick="atmosferDegistir('sakinOrman')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌲 Sakin Orman</button>
+                <button onclick="atmosferDegistir('gunBatimi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌇 Gün Batımı</button>
+                <button onclick="atmosferDegistir('buzul')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">❄️ Buzul Fırtınası</button>
+                <button onclick="atmosferDegistir('geceYarisi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌙 Gece Yarısı</button>
+                <button onclick="atmosferDegistir('altinCag')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">✨ Altın Çağ</button>
+                <button onclick="atmosferDegistir('kanliAy')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🪐 Kanlı Ay</button>
+                <button onclick="atmosferDegistir('bulutsuz')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌤️️ Bulutsuz Gökyüzü</button>
+            </div>
+            
+            <button onclick="atmosferMenuToggle()" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs border border-gray-700/50">
+                <span>✨ Atmosfer Modları</span>
             </button>
         </div>
-
-        <div class="px-4 py-1 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
-            <span>Geçmiş Sohbetler</span>
-            <div class="flex gap-1">
-                <button onclick="sohbetleriDisaAktar()" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs">📤</button>
-                <label title="Sohbetleri İçe Aktar" class="hover:text-cyan-400 text-xs cursor-pointer">
-                    📥
-                    <input type="file" id="jsonYukle" class="hidden" accept=".json" onchange="sohbetleriIceAktar(event)">
-                </label>
-            </div>
-        </div>
-
-        <!-- Sohbet Arama Çubuğu -->
-        <div class="px-4 py-2">
-            <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..." oninput="sohbetAramaYap(this.value)"
-                class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
-        </div>
-
-        <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5 pb-4"></div>
     </aside>
 
     <!-- SAĞ ANA ALAN -->
@@ -181,11 +204,14 @@
         let yuklenenDosyaVerisi = null;
         let webAramaAktif = false;
         let mevcutTema = localStorage.getItem('nova_tema') || 'dark';
+        let aktifAtmosfer = localStorage.getItem('nova_atmosfer') || 'derinUzay';
 
         if (mevcutTema === 'light') {
             document.documentElement.classList.remove('dark');
             document.getElementById('temaBtn').innerText = '🌙';
         }
+
+        atmosferUygula(aktifAtmosfer);
 
         const sidebar = document.getElementById('sidebar');
         const sohbetKutusu = document.getElementById('sohbetKutusu');
@@ -195,9 +221,9 @@
         const secilenDosyaBilgi = document.getElementById('secilenDosyaBilgi');
         const secilenDosyaAdi = document.getElementById('secilenDosyaAdi');
         const dosyaMenu = document.getElementById('dosyaMenu');
+        const atmosferMenu = document.getElementById('atmosferMenu');
         const webAramaBtn = document.getElementById('webAramaBtn');
 
-        // Sayfa açıldığında mobil cihazlarda menüyü otomatik kapat
         if (window.innerWidth < 768) {
             sidebar.classList.add('sidebar-kapali');
         }
@@ -212,6 +238,7 @@
         window.addEventListener('click', function(e) {
             if (!e.target.closest('.relative')) {
                 dosyaMenu.classList.add('hidden');
+                atmosferMenu.classList.add('hidden');
             }
         });
 
@@ -225,6 +252,49 @@
                 localStorage.setItem('nova_tema', 'dark');
                 document.getElementById('temaBtn').innerText = '☀️';
             }
+        }
+
+        function atmosferMenuToggle() {
+            atmosferMenu.classList.toggle('hidden');
+        }
+
+        function atmosferDegistir(mod) {
+            aktifAtmosfer = mod;
+            localStorage.setItem('nova_atmosfer', mod);
+            atmosferUygula(mod);
+            atmosferMenu.classList.add('hidden');
+        }
+
+        function atmosferUygula(mod) {
+            const renkler = {
+                derinUzay: { bg: '#050508', sidebar: '#0b0c10', pill: '#12131c' },
+                siberpunk: { bg: '#0f051d', sidebar: '#1a0933', pill: '#260d4d' },
+                matris: { bg: '#021005', sidebar: '#051f0b', pill: '#0a3812' },
+                sakinOrman: { bg: '#080d0d', sidebar: '#0e1717', pill: '#162424' },
+                gunBatimi: { bg: '#14080a', sidebar: '#210d10', pill: '#331418' },
+                buzul: { bg: '#040d14', sidebar: '#081724', pill: '#0e2940' },
+                geceYarisi: { bg: '#020203', sidebar: '#07070a', pill: '#101017' },
+                altinCag: { bg: '#141105', sidebar: '#211c08', pill: '#332c0d' },
+                kanliAy: { bg: '#140505', sidebar: '#240808', pill: '#3b0d0d' },
+                bulutsuz: { bg: '#060e14', sidebar: '#0c1a24', pill: '#132b3d' }
+            };
+
+            const secilen = renkler[mod] || renkler.derinUzay;
+            document.body.style.backgroundColor = secilen.bg;
+            document.getElementById('sidebar').style.backgroundColor = secilen.sidebar;
+            
+            // Tailwind stil override için dinamik stil etiketi
+            let styleTag = document.getElementById('dynamicAtmosfer');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'dynamicAtmosfer';
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = `
+                .bg-darkBg { background-color: ${secilen.bg} !important; }
+                .bg-sidebarBg { background-color: ${secilen.sidebar} !important; }
+                .bg-pillBg { background-color: ${secilen.pill} !important; }
+            `;
         }
 
         function verileriKaydet() {
