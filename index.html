@@ -25,15 +25,19 @@
         }
     </script>
     <style>
-        .markdown-body pre { background: #1a1b26; padding: 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; position: relative; }
+        .markdown-body pre { background: #1a1b26; padding: 2.5rem 1rem 1rem 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; position: relative; }
         .markdown-body code { font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-size: 0.875rem; }
+        .markdown-body pre code { background: transparent; padding: 0; }
         .markdown-body p { margin-bottom: 0.75rem; }
         .markdown-body p:last-child { margin-bottom: 0; }
         .markdown-body strong { color: #00f2fe; font-weight: 600; }
         .markdown-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
-        .copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        
+        .copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; transition: background 0.2s; z-index: 10; }
         .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
         
+        .lang-badge { position: absolute; top: 8px; left: 12px; color: #00f2fe; font-size: 11px; font-family: monospace; font-weight: bold; text-transform: uppercase; z-index: 10; }
+
         /* Yazıyor Animasyonu için Noktalar */
         @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
         .typing-dot span { animation: blink 1.4s infinite both; height: 7px; width: 7px; background-color: #00f2fe; border-radius: 50%; display: inline-block; margin: 0 1px; }
@@ -68,7 +72,7 @@
             </button>
         </div>
 
-        <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
+        <div class="px-4 py-1 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
             <span>Geçmiş Sohbetler</span>
             <div class="flex gap-1">
                 <button onclick="sohbetleriDisaAktar()" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs">📤</button>
@@ -78,6 +82,13 @@
                 </label>
             </div>
         </div>
+
+        <!-- Sohbet Arama Çubuğu -->
+        <div class="px-4 py-2">
+            <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..." oninput="sohbetAramaYap(this.value)"
+                class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
+        </div>
+
         <div id="gecmisListesi" class="flex-1 overflow-y-auto px-3 space-y-1.5 pb-4"></div>
     </aside>
 
@@ -94,7 +105,7 @@
             
             <!-- Tema Değiştirici Buton (🌙/☀️) -->
             <button onclick="temaToggle()" id="temaBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-yellow-400 flex items-center justify-center transition text-base" title="Temayı Değiştir">
-                ☀️
+                ☀️️
             </button>
         </header>
 
@@ -146,7 +157,6 @@
         let webAramaAktif = false;
         let mevcutTema = localStorage.getItem('nova_tema') || 'dark';
 
-        // Tema Başlangıç Ayarı
         if (mevcutTema === 'light') {
             document.documentElement.classList.remove('dark');
             document.getElementById('temaBtn').innerText = '🌙';
@@ -233,15 +243,21 @@
             if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('-translate-x-full');
         }
 
-        function sohbetListesiniGuncelle() {
+        function sohbetListesiniGuncelle(filtre = "") {
             gecmisListesi.innerHTML = "";
-            sohbetler.forEach(s => {
+            const filtrelenmisSohbetler = sohbetler.filter(s => s.baslik.toLowerCase().includes(filtre.toLowerCase()));
+            
+            filtrelenmisSohbetler.forEach(s => {
                 const div = document.createElement('div');
                 div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
                 div.innerHTML = `<span class="truncate flex-1" onclick="aktifSohbetiYukle(${s.id})">${s.baslik}</span>
                                <button onclick="sohbetSil(${s.id}, event)" class="text-red-400 hover:text-red-300 px-1.5 text-xs" title="Sil">✕</button>`;
                 gecmisListesi.appendChild(div);
             });
+        }
+
+        function sohbetAramaYap(deger) {
+            sohbetListesiniGuncelle(deger);
         }
 
         function sohbetSil(id, event) {
@@ -340,15 +356,30 @@
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
                 
+                // Kod blokları için kopyalama butonu ve dil etiketi (Badge) ekleme
                 setTimeout(() => {
                     const preElements = bubble.querySelectorAll('pre');
                     preElements.forEach(pre => {
+                        const codeEl = pre.querySelector('code');
+                        let lang = "kod";
+                        if (codeEl && codeEl.className) {
+                            const match = codeEl.className.match(/language-(\w+)/);
+                            if (match) lang = match[1];
+                        }
+
                         if (!pre.querySelector('.copy-btn')) {
+                            // Dil Etiketi
+                            const badge = document.createElement('span');
+                            badge.className = 'lang-badge';
+                            badge.innerText = lang;
+                            pre.appendChild(badge);
+
+                            // Kopyala Butonu
                             const btn = document.createElement('button');
                             btn.className = 'copy-btn';
                             btn.innerText = 'Kopyala';
                             btn.onclick = () => {
-                                const codeText = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                                const codeText = codeEl ? codeEl.innerText : pre.innerText;
                                 navigator.clipboard.writeText(codeText);
                                 btn.innerText = 'Kopyalandı!';
                                 setTimeout(() => btn.innerText = 'Kopyala', 2000);
@@ -363,7 +394,6 @@
 
             wrapper.appendChild(bubble);
 
-            // Butonları balonun alt kısmına (aşağıya) yerleştiriyoruz
             if (tip !== 'typing') {
                 const actionsBar = document.createElement('div');
                 actionsBar.className = `flex items-center gap-3 mt-1 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
@@ -456,7 +486,7 @@
                 const aiYaniti = await gercekAiYanitAl(metin);
                 sohbet.mesajlar[typingIndex] = { rol: 'assistant', metin: aiYaniti, tip: 'text' };
                 verileriKaydet();
-                aktifSohbetiYukle(aktifSohbetId); // Hatalı fonksiyon adı düzeltildi
+                aktifSohbetiYukle(aktifSohbetId);
             }
         }
 
