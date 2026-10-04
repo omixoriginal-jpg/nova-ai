@@ -126,8 +126,8 @@
                     <div class="text-xs font-bold text-cyan-400 px-2 py-1 uppercase tracking-wider border-b border-gray-800 mb-1">Arka Plan Sesleri</div>
                     <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="lofi">🎧 Lofi Chill (Radyo)</button>
                     <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="yagmur">🌧️ Yağmur Sesi</button>
-                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="uzay">🌌 Uzay Dalgaları</button>
-                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="kampatesi">🔥 Kamp Ateşi</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="karadelik">🕳️ Kara Delik Sesi</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="lav">🌋 Lav ve Volkan Sesi</button>
                     <button id="muzikKapatBtn" class="text-left px-3 py-1.5 rounded-xl text-xs text-red-400 hover:bg-gray-800 transition border-t border-gray-800 mt-1 cursor-pointer">🔇 Müziği Kapat</button>
                 </div>
                 <button id="muzikMenuToggleBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-2 rounded-xl transition shadow-md flex items-center justify-center gap-1 text-xs border border-gray-700/50 cursor-pointer" title="Arka Plan Müzikleri">
@@ -228,7 +228,7 @@
             sidebar.classList.add('sidebar-kapali');
         }
 
-        // BUTON DİNLEYİCİLERİ (Garantili Çalışma Altyapısı)
+        // BUTON DİNLEYİCİLERİ
         document.getElementById('temaToggleBtn').addEventListener('click', temaToggle);
         document.getElementById('menuToggleBtn').addEventListener('click', menuToggle);
         document.getElementById('dosyaMenuToggleBtn').addEventListener('click', dosyaMenuToggle);
@@ -278,7 +278,7 @@
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('nova_tema', 'dark');
-                document.getElementById('temaToggleBtn').innerText = '☀️️';
+                document.getElementById('temaToggleBtn').innerText = '☀';
             }
         }
 
@@ -297,8 +297,8 @@
             let kaynaklar = {
                 lofi: "https://stream.zeno.fm/f3wvbbqmdg8uv",
                 yagmur: "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg",
-                uzay: "https://actions.google.com/sounds/v1/science_fiction/deep_space_drone.ogg",
-                kampatesi: "https://actions.google.com/sounds/v1/ambiences/campfire.ogg"
+                karadelik: "https://actions.google.com/sounds/v1/science_fiction/deep_space_drone.ogg",
+                lav: "https://actions.google.com/sounds/v1/ambiences/fire_crackling.ogg"
             };
 
             arkaPlanMuzik.src = kaynaklar[tur] || kaynaklar.lofi;
@@ -306,7 +306,7 @@
                 muzikMenuToggleBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
                 muzikBtnMetin.innerText = 'Çalıyor';
             }).catch(err => {
-                alert("Müzik/Ses başlatılamadı.");
+                alert("Ses başlatılamadı.");
             });
         }
 
