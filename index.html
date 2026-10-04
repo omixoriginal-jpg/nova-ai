@@ -268,9 +268,9 @@
             muzikMenu.classList.add('hidden');
             let kaynaklar = {
                 lofi: "https://stream.zeno.fm/f3wvbbqmdg8uv",
-                yagmur: "https://cdn.pixabay.com/download/audio/2021/08/09/audio_4b5258e72c.mp3?filename=heavy-rain-and-thunder-19794.mp3",
-                uzay: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=deep-space-ambient-110294.mp3",
-                kampatesi: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=campfire-crackling-fireplace-119159.mp3"
+                yagmur: "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg",
+                uzay: "https://actions.google.com/sounds/v1/science_fiction/deep_space_drone.ogg",
+                kampatesi: "https://actions.google.com/sounds/v1/ambiences/campfire.ogg"
             };
 
             arkaPlanMuzik.src = kaynaklar[tur] || kaynaklar.lofi;
@@ -651,7 +651,7 @@
                         ? `Yüklediğin **${aktifDosya.isim}** görselini taradım ve başarıyla analiz ettim.`
                         : `Yüklediğin **${aktifDosya.isim}** dosyasının içeriğini başarıyla okudum.`;
                     
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' });
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' };
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
                 }, 1000);
