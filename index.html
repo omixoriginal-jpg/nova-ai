@@ -179,6 +179,7 @@
             document.getElementById('temaBtn').innerText = '🌙';
         }
 
+        const sidebar = document.getElementById('sidebar');
         const sohbetKutusu = document.getElementById('sohbetKutusu');
         const mesajGiris = document.getElementById('mesajGiris');
         const aktifBaslik = document.getElementById('aktifBaslik');
@@ -218,7 +219,7 @@
         }
 
         function menuToggle() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('-translate-x-full');
         }
 
         function dosyaMenuToggle() {
@@ -243,7 +244,7 @@
             const yeniSohbet = { id: yeniId, baslik: "Yeni Sohbet", mesajlar: [] };
             sohbetler.unshift(yeniSohbet);
             aktifSohbetiYukle(yeniId);
-            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('-translate-x-full');
+            if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
         }
 
         function aktifSohbetiYukle(id) {
@@ -257,7 +258,7 @@
                 mesajEkranaEkle(m.rol, m.metin, index, false, m.tip, m.dosyaAdi);
             });
             sohbetListesiniGuncelle();
-            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('-translate-x-full');
+            if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
         }
 
         function sohbetListesiniGuncelle(filtre = "") {
