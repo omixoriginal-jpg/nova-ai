@@ -74,7 +74,7 @@
             </div>
 
             <div class="p-4 flex flex-col gap-2">
-                <button onclick="yeniSohbetBaslat()" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <button id="yeniSohbetBtn" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
                     <span>+ Yeni Sohbet</span>
                 </button>
             </div>
@@ -82,16 +82,16 @@
             <div class="px-4 py-1 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
                 <span>Geçmiş Sohbetler</span>
                 <div class="flex gap-1">
-                    <button onclick="sohbetleriDisaAktar()" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs">📤</button>
+                    <button id="disaAktarBtn" title="Sohbetleri Dışa Aktar" class="hover:text-cyan-400 text-xs cursor-pointer">📤</button>
                     <label title="Sohbetleri İçe Aktar" class="hover:text-cyan-400 text-xs cursor-pointer">
                         📥
-                        <input type="file" id="jsonYukle" class="hidden" accept=".json" onchange="sohbetleriIceAktar(event)">
+                        <input type="file" id="jsonYukle" class="hidden" accept=".json">
                     </label>
                 </div>
             </div>
 
             <div class="px-4 py-2">
-                <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..." oninput="sohbetAramaYap(this.value)"
+                <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..."
                     class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
             </div>
 
@@ -104,18 +104,18 @@
             <div class="relative flex-1">
                 <div id="atmosferMenu" class="hidden absolute bottom-14 left-0 w-52 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 z-40 flex flex-col gap-1 max-h-72 overflow-y-auto">
                     <div class="text-xs font-bold text-cyan-400 px-2 py-1 uppercase tracking-wider border-b border-gray-800 mb-1">Atmosfer Modları</div>
-                    <button onclick="atmosferDegistir('derinUzay')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌌 Derin Uzay</button>
-                    <button onclick="atmosferDegistir('siberpunk')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">⚡ Siberpunk Neon</button>
-                    <button onclick="atmosferDegistir('matris')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">💻 Kodlama Matrisi</button>
-                    <button onclick="atmosferDegistir('sakinOrman')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌲 Sakin Orman</button>
-                    <button onclick="atmosferDegistir('gunBatimi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌇 Gün Batımı</button>
-                    <button onclick="atmosferDegistir('buzul')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">❄️ Buzul Fırtınası</button>
-                    <button onclick="atmosferDegistir('geceYarisi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌙 Gece Yarısı</button>
-                    <button onclick="atmosferDegistir('altinCag')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">✨ Altın Çağ</button>
-                    <button onclick="atmosferDegistir('kanliAy')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🪐 Kanlı Ay</button>
-                    <button onclick="atmosferDegistir('bulutsuz')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌤 Bulutsuz Gökyüzü</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="derinUzay">🌌 Derin Uzay</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="siberpunk">⚡ Siberpunk Neon</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="matris">💻 Kodlama Matrisi</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="sakinOrman">🌲 Sakin Orman</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="gunBatimi">🌇 Gün Batımı</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="buzul">❄️ Buzul Fırtınası</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="geceYarisi">🌙 Gece Yarısı</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="altinCag">✨ Altın Çağ</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="kanliAy">🪐 Kanlı Ay</button>
+                    <button class="atmosfer-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-mod="bulutsuz">🌤 Bulutsuz Gökyüzü</button>
                 </div>
-                <button onclick="atmosferMenuToggle()" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-2 rounded-xl transition shadow-md flex items-center justify-center gap-1 text-xs border border-gray-700/50" title="Atmosfer Modları">
+                <button id="atmosferMenuToggleBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-2 rounded-xl transition shadow-md flex items-center justify-center gap-1 text-xs border border-gray-700/50 cursor-pointer" title="Atmosfer Modları">
                     <span>✨ Tema</span>
                 </button>
             </div>
@@ -124,14 +124,14 @@
             <div class="relative flex-1">
                 <div id="muzikMenu" class="hidden absolute bottom-14 right-0 w-52 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 z-40 flex flex-col gap-1 max-h-72 overflow-y-auto">
                     <div class="text-xs font-bold text-cyan-400 px-2 py-1 uppercase tracking-wider border-b border-gray-800 mb-1">Arka Plan Sesleri</div>
-                    <button onclick="muzikCal('lofi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🎧 Lofi Chill (Radyo)</button>
-                    <button onclick="muzikCal('yagmur')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌧️ Yağmur Sesi</button>
-                    <button onclick="muzikCal('uzay')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🌌 Uzay Dalgaları</button>
-                    <button onclick="muzikCal('kampatesi')" class="text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition">🔥 Kamp Ateşi</button>
-                    <button onclick="muzikDurdur()" class="text-left px-3 py-1.5 rounded-xl text-xs text-red-400 hover:bg-gray-800 transition border-t border-gray-800 mt-1">🔇 Müziği Kapat</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="lofi">🎧 Lofi Chill (Radyo)</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="yagmur">🌧️ Yağmur Sesi</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="uzay">🌌 Uzay Dalgaları</button>
+                    <button class="muzik-sec text-left px-3 py-1.5 rounded-xl text-xs text-gray-300 hover:bg-gray-800 transition cursor-pointer" data-muzik="kampatesi">🔥 Kamp Ateşi</button>
+                    <button id="muzikKapatBtn" class="text-left px-3 py-1.5 rounded-xl text-xs text-red-400 hover:bg-gray-800 transition border-t border-gray-800 mt-1 cursor-pointer">🔇 Müziği Kapat</button>
                 </div>
-                <button onclick="muzikMenuToggle()" id="muzikBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-2 rounded-xl transition shadow-md flex items-center justify-center gap-1 text-xs border border-gray-700/50" title="Arka Plan Müzikleri">
-                    <span>🎵 Müzik</span>
+                <button id="muzikMenuToggleBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-cyan-400 font-semibold py-2.5 px-2 rounded-xl transition shadow-md flex items-center justify-center gap-1 text-xs border border-gray-700/50 cursor-pointer" title="Arka Plan Müzikleri">
+                    <span id="muzikBtnMetin">🎵 Müzik</span>
                 </button>
             </div>
         </div>
@@ -144,15 +144,15 @@
     <main class="flex-1 flex flex-col h-full relative overflow-hidden">
         <header class="h-16 border-b border-gray-800/60 flex items-center justify-between px-6 bg-darkBg/80 backdrop-blur z-20">
             <div class="flex items-center gap-3">
-                <button onclick="menuToggle()" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm transition hover:bg-gray-800/50">
+                <button id="menuToggleBtn" class="text-cyan-400 hover:text-cyan-300 p-2 rounded-lg border border-gray-800 text-sm transition hover:bg-gray-800/50 cursor-pointer">
                     ☰ Menü
                 </button>
                 <div id="aktifBaslik" class="font-bold text-sm text-gray-200">Yeni Sohbet</div>
-                <button onclick="aktifSohbetBasliginiDuzenle()" title="Başlığı Düzenle" class="text-gray-400 hover:text-cyan-400 text-xs">✏️</button>
+                <button id="baslikDuzenleBtn" title="Başlığı Düzenle" class="text-gray-400 hover:text-cyan-400 text-xs cursor-pointer">✏️</button>
             </div>
             
-            <button onclick="temaToggle()" id="temaBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-yellow-400 flex items-center justify-center transition text-base" title="Temayı Değiştir">
-                ☀
+            <button id="temaToggleBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-yellow-400 flex items-center justify-center transition text-base cursor-pointer" title="Temayı Değiştir">
+                ☀️
             </button>
         </header>
 
@@ -161,35 +161,35 @@
         <div class="p-4 max-w-4xl w-full mx-auto z-20">
             <div class="bg-pillBg border border-gray-800 rounded-3xl p-2 flex items-center gap-3 shadow-xl relative">
                 <div class="relative">
-                    <button onclick="dosyaMenuToggle()" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-cyan-400 flex items-center justify-center font-bold transition text-lg" title="Dosya veya Görsel Ekle">
+                    <button id="dosyaMenuToggleBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-cyan-400 flex items-center justify-center font-bold transition text-lg cursor-pointer" title="Dosya veya Görsel Ekle">
                         +
                     </button>
                     <div id="dosyaMenu" class="hidden absolute bottom-12 left-0 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 w-48 z-30 flex flex-col gap-1">
                         <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
                             <span>📷 Görsel Yükle</span>
-                            <input type="file" class="hidden" accept="image/*" onchange="dosyaSecildi(event, 'image')">
+                            <input type="file" id="gorselInput" class="hidden" accept="image/*">
                         </label>
                         <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
                             <span>📁 Belge/Dosya Ekle</span>
-                            <input type="file" class="hidden" onchange="dosyaSecildi(event, 'file')">
+                            <input type="file" id="dosyaInput" class="hidden">
                         </label>
                     </div>
                 </div>
 
-                <button id="webAramaBtn" onclick="webAramaToggle()" class="w-9 h-9 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center transition text-sm hover:text-cyan-400" title="Web Arama Modu (Kapalı/Açık)">
+                <button id="webAramaBtn" class="w-9 h-9 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center transition text-sm hover:text-cyan-400 cursor-pointer" title="Web Arama Modu (Kapalı/Açık)">
                     🌐
                 </button>
 
                 <input type="text" id="mesajGiris" placeholder="Nova'ya mesajını yaz veya görsel/dosya ekle..." 
                     class="flex-1 bg-transparent border-none outline-none px-2 text-sm placeholder-gray-500">
                 
-                <button onclick="mesajGonder()" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md">
+                <button id="mesajGonderBtn" class="w-10 h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md cursor-pointer">
                     ➤
                 </button>
             </div>
             <div id="secilenDosyaBilgi" class="text-xs text-cyan-400 mt-2 px-4 hidden flex justify-between items-center">
                 <span id="secilenDosyaAdi">Seçilen Dosya: -</span>
-                <button onclick="dosyayiIptalEt()" class="text-red-400 hover:underline">İptal Et</button>
+                <button id="dosyaIptalBtn" class="text-red-400 hover:underline cursor-pointer">İptal Et</button>
             </div>
         </div>
     </main>
@@ -204,7 +204,7 @@
 
         if (mevcutTema === 'light') {
             document.documentElement.classList.remove('dark');
-            document.getElementById('temaBtn').innerText = '🌙';
+            document.getElementById('temaToggleBtn').innerText = '🌙';
         }
 
         atmosferUygula(aktifAtmosfer);
@@ -221,11 +221,39 @@
         const muzikMenu = document.getElementById('muzikMenu');
         const webAramaBtn = document.getElementById('webAramaBtn');
         const arkaPlanMuzik = document.getElementById('arkaPlanMuzik');
-        const muzikBtn = document.getElementById('muzikBtn');
+        const muzikBtnMetin = document.getElementById('muzikBtnMetin');
+        const muzikMenuToggleBtn = document.getElementById('muzikMenuToggleBtn');
 
         if (window.innerWidth < 768) {
             sidebar.classList.add('sidebar-kapali');
         }
+
+        // BUTON DİNLEYİCİLERİ (Garantili Çalışma Altyapısı)
+        document.getElementById('temaToggleBtn').addEventListener('click', temaToggle);
+        document.getElementById('menuToggleBtn').addEventListener('click', menuToggle);
+        document.getElementById('dosyaMenuToggleBtn').addEventListener('click', dosyaMenuToggle);
+        document.getElementById('atmosferMenuToggleBtn').addEventListener('click', atmosferMenuToggle);
+        document.getElementById('muzikMenuToggleBtn').addEventListener('click', muzikMenuToggle);
+        document.getElementById('muzikKapatBtn').addEventListener('click', muzikDurdur);
+        document.getElementById('webAramaBtn').addEventListener('click', webAramaToggle);
+        document.getElementById('yeniSohbetBtn').addEventListener('click', yeniSohbetBaslat);
+        document.getElementById('baslikDuzenleBtn').addEventListener('click', aktifSohbetBasliginiDuzenle);
+        document.getElementById('disaAktarBtn').addEventListener('click', sohbetleriDisaAktar);
+        document.getElementById('jsonYukle').addEventListener('change', sohbetleriIceAktar);
+        document.getElementById('mesajGonderBtn').addEventListener('click', mesajGonder);
+        document.getElementById('dosyaIptalBtn').addEventListener('click', dosyayiIptalEt);
+        document.getElementById('sohbetArama').addEventListener('input', (e) => sohbetAramaYap(e.target.value));
+
+        document.getElementById('gorselInput').addEventListener('change', (e) => dosyaSecildi(e, 'image'));
+        document.getElementById('dosyaInput').addEventListener('change', (e) => dosyaSecildi(e, 'file'));
+
+        document.querySelectorAll('.atmosfer-sec').forEach(btn => {
+            btn.addEventListener('click', () => atmosferDegistir(btn.getAttribute('data-mod')));
+        });
+
+        document.querySelectorAll('.muzik-sec').forEach(btn => {
+            btn.addEventListener('click', () => muzikCal(btn.getAttribute('data-muzik')));
+        });
 
         mesajGiris.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -246,11 +274,11 @@
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('nova_tema', 'light');
-                document.getElementById('temaBtn').innerText = '🌙';
+                document.getElementById('temaToggleBtn').innerText = '🌙';
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('nova_tema', 'dark');
-                document.getElementById('temaBtn').innerText = '☀️';
+                document.getElementById('temaToggleBtn').innerText = '☀️️';
             }
         }
 
@@ -275,8 +303,8 @@
 
             arkaPlanMuzik.src = kaynaklar[tur] || kaynaklar.lofi;
             arkaPlanMuzik.play().then(() => {
-                muzikBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
-                muzikBtn.innerHTML = `<span>🎵 Çalıyor</span>`;
+                muzikMenuToggleBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
+                muzikBtnMetin.innerText = 'Çalıyor';
             }).catch(err => {
                 alert("Müzik/Ses başlatılamadı.");
             });
@@ -286,8 +314,8 @@
             muzikMenu.classList.add('hidden');
             arkaPlanMuzik.pause();
             arkaPlanMuzik.currentTime = 0;
-            muzikBtn.classList.remove('bg-cyan-500/20', 'border-cyan-500');
-            muzikBtn.innerHTML = `<span>🎵 Müzik</span>`;
+            muzikMenuToggleBtn.classList.remove('bg-cyan-500/20', 'border-cyan-500');
+            muzikBtnMetin.innerText = 'Müzik';
         }
 
         function atmosferDegistir(mod) {
@@ -382,8 +410,20 @@
             filtrelenmisSohbetler.forEach(s => {
                 const div = document.createElement('div');
                 div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
-                div.innerHTML = `<span class="truncate flex-1" onclick="aktifSohbetiYukle(${s.id})">${s.baslik}</span>
-                               <button onclick="sohbetSil(${s.id}, event)" class="text-red-400 hover:text-red-300 px-1.5 text-xs" title="Sil">✕</button>`;
+                
+                const span = document.createElement('span');
+                span.className = 'truncate flex-1';
+                span.innerText = s.baslik;
+                span.addEventListener('click', () => aktifSohbetiYukle(s.id));
+                
+                const silBtn = document.createElement('button');
+                silBtn.className = 'text-red-400 hover:text-red-300 px-1.5 text-xs';
+                silBtn.innerText = '✕';
+                silBtn.title = 'Sil';
+                silBtn.addEventListener('click', (ev) => sohbetSil(s.id, ev));
+
+                div.appendChild(span);
+                div.appendChild(silBtn);
                 gecmisListesi.appendChild(div);
             });
         }
@@ -507,12 +547,12 @@
                             const btn = document.createElement('button');
                             btn.className = 'copy-btn';
                             btn.innerText = 'Kopyala';
-                            btn.onclick = () => {
+                            btn.addEventListener('click', () => {
                                 const codeText = codeEl ? codeEl.innerText : pre.innerText;
                                 navigator.clipboard.writeText(codeText);
                                 btn.innerText = 'Kopyalandı!';
                                 setTimeout(() => btn.innerText = 'Kopyala', 2000);
-                            };
+                            });
                             pre.appendChild(btn);
                         }
                     });
@@ -528,24 +568,24 @@
                 actionsBar.className = `flex items-center gap-3 mt-1 text-xs text-gray-400 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity px-1`;
 
                 const silBtn = document.createElement('button');
-                silBtn.className = 'hover:text-red-400 transition';
+                silBtn.className = 'hover:text-red-400 transition cursor-pointer';
                 silBtn.innerText = 'Mesajı Sil';
-                silBtn.onclick = () => mesajSil(index);
+                silBtn.addEventListener('click', () => mesajSil(index));
                 actionsBar.appendChild(silBtn);
 
                 if (rol === 'user' && tip === 'text') {
                     const duzenleBtn = document.createElement('button');
-                    duzenleBtn.className = 'hover:text-cyan-400 transition';
+                    duzenleBtn.className = 'hover:text-cyan-400 transition cursor-pointer';
                     duzenleBtn.innerText = '✏️ Düzenle';
-                    duzenleBtn.onclick = () => mesajiDuzenle(index, metin);
+                    duzenleBtn.addEventListener('click', () => mesajiDuzenle(index, metin));
                     actionsBar.appendChild(duzenleBtn);
                 }
 
                 if (rol === 'assistant' && tip === 'text') {
                     const sesBtn = document.createElement('button');
-                    sesBtn.className = 'hover:text-cyan-400 transition';
+                    sesBtn.className = 'hover:text-cyan-400 transition cursor-pointer';
                     sesBtn.innerText = '🔊 Sesli Oku';
-                    sesBtn.onclick = () => metniSeslendir(metin);
+                    sesBtn.addEventListener('click', () => metniSeslendir(metin));
                     actionsBar.appendChild(sesBtn);
                 }
                 wrapper.appendChild(actionsBar);
@@ -651,7 +691,7 @@
                         ? `Yüklediğin **${aktifDosya.isim}** görselini taradım ve başarıyla analiz ettim.`
                         : `Yüklediğin **${aktifDosya.isim}** dosyasının içeriğini başarıyla okudum.`;
                     
-                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' };
+                    sohbet.mesajlar.push({ rol: 'assistant', metin: analizYaniti, tip: 'text' });
                     verileriKaydet();
                     aktifSohbetiYukle(aktifSohbetId);
                 }, 1000);
