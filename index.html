@@ -46,7 +46,7 @@
         /* Sol Menü Geçişleri ve Gizleme Durumları */
         #sidebar { transition: transform 0.3s ease-in-out, margin-left 0.3s ease-in-out; }
         @media (min-width: 769px) {
-            #sidebar.sidebar-kapali { margin-left: -18rem; } /* 72 birim (w-72) kadar sola kaydırıp tamamen gizler */
+            #sidebar.sidebar-kapali { margin-left: -18rem; }
         }
         @media (max-width: 768px) {
             #sidebar { width: 80% !important; max-width: 300px; }
@@ -167,9 +167,13 @@
                     <button id="dosyaMenuToggleBtn" class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-cyan-400 flex items-center justify-center font-bold transition text-base cursor-pointer">
                         +
                     </button>
-                    <div id="dosyaMenu" class="hidden absolute bottom-12 left-0 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 w-44 z-30 flex flex-col gap-1">
+                    <!-- EKLER MENÜSÜ -->
+                    <div id="dosyaMenu" class="hidden absolute bottom-12 left-0 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 w-48 z-30 flex flex-col gap-1">
+                        <button id="gorselUretMenuBtn" class="w-full text-left px-3 py-2 rounded-xl text-xs text-cyan-400 hover:bg-gray-800 cursor-pointer transition flex items-center gap-2 font-medium">
+                            <span>🎨 Görsel Üret</span>
+                        </button>
                         <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
-                            <span>📷 Görsel Ekle</span>
+                            <span>📷 Görsel Yükle</span>
                             <input type="file" id="gorselInput" class="hidden" accept="image/*">
                         </label>
                         <label class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-300 hover:bg-gray-800 cursor-pointer transition">
@@ -179,10 +183,10 @@
                     </div>
                 </div>
 
-                <input type="text" id="mesajGiris" placeholder="Mesajınızı yazın veya mikrofonu kullanın..." 
+                <input type="text" id="mesajGiris" placeholder="Mesajınızı yazın (Örn: 'Şu köpeğin resmini çiz')..." 
                     class="flex-1 bg-transparent border-none outline-none px-1 text-xs md:text-sm placeholder-gray-500 text-gray-100 min-w-0">
                 
-                <!-- SESLİ KOMUT (MİKROFON) BUTONU -->
+                <!-- MİKROFON BUTONU -->
                 <button id="mikrofonBtn" title="Sesli Yaz" class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition text-sm cursor-pointer shrink-0">
                     🎤
                 </button>
@@ -247,6 +251,14 @@
         document.getElementById('mesajGonderBtn').addEventListener('click', mesajGonder);
         document.getElementById('dosyaIptalBtn').addEventListener('click', () => { yuklenenDosyaVerisi = null; secilenDosyaBilgi.classList.add('hidden'); });
         document.getElementById('sohbetArama').addEventListener('input', (e) => sohbetListesiniGuncelle(e.target.value));
+
+        document.getElementById('gorselUretMenuBtn').addEventListener('click', () => {
+            dosyaMenu.classList.add('hidden');
+            let promptText = prompt("🎨 Üretilmesini istediğiniz görseli detaylıca tarif edin:");
+            if (promptText && promptText.trim() !== "") {
+                yapayZekaGorselUret(promptText.trim());
+            }
+        });
 
         // Sesli Asistan (Mikrofon)
         const mikrofonBtn = document.getElementById('mikrofonBtn');
@@ -421,7 +433,7 @@
             
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color: ${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
@@ -522,6 +534,33 @@
             reader.readAsDataURL(file);
         }
 
+        // Akıllı Görsel Üretme Tetikleyicisi
+        function gorselIstegiMi(metin) {
+            const kucuk = metin.toLowerCase();
+            return kucuk.includes("resmini çiz") || kucuk.includes("fotoğrafını yap") || 
+                   kucuk.includes("görsel üret") || kucuk.includes("resmini yap") || 
+                   kucuk.includes("fotoğrafını çiz") || kucuk.includes("çiz") || 
+                   kucuk.startsWith("görsel:") || kucuk.startsWith("resim:");
+        }
+
+        async function yapayZekaGorselUret(promptMetni) {
+            let sohbet = sohbetler.find(s => s.id === aktifSohbetId) || (() => { yeniSohbetBaslat(); return sohbetler[0]; })();
+            
+            // Yazılıyor animasyonu ekle
+            sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
+            mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
+
+            // Görsel URL oluşturma
+            const gorselUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptMetni)}`;
+
+            setTimeout(() => {
+                sohbet.mesajlar.pop(); // Yazılıyor animasyonunu kaldır
+                sohbet.mesajlar.push({ rol: 'assistant', metin: gorselUrl, tip: 'image', dosyaAdi: promptMetni });
+                verileriKaydet();
+                aktifSohbetiYukle(aktifSohbetId);
+            }, 1200);
+        }
+
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-3 group relative`;
@@ -530,9 +569,9 @@
             bubble.className = `max-w-[90%] md:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs md:text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none shadow-sm'}`;
             
             if (tip === 'typing') {
-                bubble.innerHTML = `<div class="flex items-center gap-2"><span class="text-xs text-cyan-400">Yazıyor</span><div class="typing-dot"><span></span><span></span><span></span></div></div>`;
+                bubble.innerHTML = `<div class="flex items-center gap-2"><span class="text-xs text-cyan-400">Görsel üretiliyor</span><div class="typing-dot"><span></span><span></span><span></span></div></div>`;
             } else if (tip === 'image-upload' || tip === 'image') {
-                bubble.innerHTML = `<p class="mb-1 text-[11px] text-cyan-300 font-semibold">${dosyaAdi || 'Görsel'}</p><img src="${metin}" class="rounded-xl w-full max-h-60 object-cover border border-gray-700">`;
+                bubble.innerHTML = `<p class="mb-1 text-[11px] text-cyan-300 font-semibold">${dosyaAdi || 'Görsel'}</p><img src="${metin}" class="rounded-xl w-full max-h-80 object-contain border border-gray-700 bg-black/20">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
                 
@@ -568,7 +607,6 @@
                 bubble.innerText = metin;
             }
 
-            // HOVER İLE ÇIKAN DÜZENLE VE SİL BUTONLARI
             if (tip !== 'typing') {
                 const actionMenu = document.createElement('div');
                 actionMenu.className = `absolute -top-3 ${rol === 'user' ? 'right-2' : 'left-2'} hidden group-hover:flex items-center gap-1 bg-sidebarBg border border-gray-700 rounded-lg px-2 py-0.5 shadow-md z-10 text-[10px]`;
@@ -608,7 +646,6 @@
             if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
         }
 
-        // GELİŞTİRİLMİŞ SAĞLAM AI BAĞLANTI FONKSİYONU
         async function gercekAiYanitAl(metin) {
             const sistemTalimati = "Sen NOVA adlı profesyonel yapay zeka asistanısın. Türkçe yanıt ver. Asla boş süslü parantez {} veya anlamsız kısa karakterler döndürme. Güncel bilgileri, kod yazmayı ve açıklamaları eksiksiz yap.";
             
@@ -670,20 +707,25 @@
             if (ilkMesajMi) {
                 akilliBaslikOlustur(metin).then(yeniBaslik => {
                     sohbet.baslik = yeniBaslik;
-                    aktifBaslik.innerText = yeniBaslik;
+                    aktifBaslik.innerText = yeniId = yeniBaslik;
                     verileriKaydet();
                     sohbetListesiniGuncelle();
                 });
             }
 
-            sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
-            mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
+            // Normal sohbet mi yoksa doğrudan görsel üretme isteği mi kontrol et
+            if (gorselIstegiMi(metin)) {
+                yapayZekaGorselUret(metin);
+            } else {
+                sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
+                mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
 
-            const aiYaniti = await gercekAiYanitAl(metin);
-            sohbet.mesajlar.pop();
-            sohbet.mesajlar.push({ rol: 'assistant', metin: aiYaniti, tip: 'text' });
-            verileriKaydet();
-            aktifSohbetiYukle(aktifSohbetId);
+                const aiYaniti = await gercekAiYanitAl(metin);
+                sohbet.mesajlar.pop();
+                sohbet.mesajlar.push({ rol: 'assistant', metin: aiYaniti, tip: 'text' });
+                verileriKaydet();
+                aktifSohbetiYukle(aktifSohbetId);
+            }
         }
 
         if (sohbetler.length === 0) yeniSohbetBaslat();
