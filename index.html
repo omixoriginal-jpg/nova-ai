@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVA Pro — Mobil Uyumlu Web Asistanı</title>
+    <title>NOVA Pro — Profesyonel Yapay Zeka Asistanı</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Markdown için Marked.js -->
@@ -29,23 +29,24 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0, 242, 254, 0.2); border-radius: 10px; }
 
-        .markdown-body pre { background: #1a1b26; padding: 2.2rem 1rem 1rem 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; position: relative; }
+        .markdown-body pre { background: #1a1b26; padding: 2.5rem 1rem 1rem 1rem; border-radius: 0.75rem; margin: 0.5rem 0; overflow-x: auto; border: 1px solid #2d3748; position: relative; }
         .markdown-body code { font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-size: 0.8rem; }
         .markdown-body pre code { background: transparent; padding: 0; }
         .markdown-body p { margin-bottom: 0.5rem; word-break: break-word; }
         .markdown-body strong { color: #00f2fe; font-weight: 600; }
         .markdown-body ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
         
-        .copy-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 3px 6px; font-size: 10px; border-radius: 4px; cursor: pointer; z-index: 10; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; display: block; overflow-x: auto; }
+        .markdown-body th, .markdown-body td { border: 1px solid #2d3748; padding: 0.5rem; text-align: left; font-size: 0.85rem; }
+        .markdown-body th { background: rgba(0, 242, 254, 0.15); color: #00f2fe; }
+
+        .copy-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 3px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; z-index: 10; transition: background 0.2s; }
+        .copy-btn:hover { background: rgba(0, 242, 254, 0.3); color: #fff; }
         .lang-badge { position: absolute; top: 6px; left: 10px; color: #00f2fe; font-size: 10px; font-family: monospace; font-weight: bold; text-transform: uppercase; z-index: 10; }
 
-        /* MOBİL İÇİN TAM EKRAN MENÜ DÜZENİ */
         #sidebar { transition: transform 0.3s ease-in-out; }
         @media (max-width: 768px) {
-            #sidebar {
-                width: 80% !important;
-                max-width: 300px;
-            }
+            #sidebar { width: 80% !important; max-width: 300px; }
             #sidebar.sidebar-kapali { transform: translateX(-100%); }
             #sidebar:not(.sidebar-kapali) { transform: translateX(0); }
         }
@@ -64,7 +65,6 @@
 </head>
 <body class="bg-darkBg text-gray-100 font-sans h-[100dvh] flex overflow-hidden relative">
 
-    <!-- ARKA PLAN KARARTMA PERDESİ (MOBİL AÇIKKEN) -->
     <div id="mobilPerde" class="fixed inset-0 bg-black/70 z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- SOL MENÜ -->
@@ -89,16 +89,17 @@
             <div class="px-3 py-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
                 <span>Geçmiş</span>
                 <div class="flex gap-2">
-                    <button id="disaAktarBtn" title="Dışa Aktar" class="hover:text-cyan-400 cursor-pointer">📤</button>
-                    <label title="İçe Aktar" class="hover:text-cyan-400 cursor-pointer">
-                        📥
+                    <button id="sohbetIndirBtn" title="Aktif Sohbeti İndir" class="hover:text-cyan-400 cursor-pointer">📥</button>
+                    <button id="disaAktarBtn" title="Tümünü Yedekle" class="hover:text-cyan-400 cursor-pointer">📤</button>
+                    <label title="Yedek Yükle" class="hover:text-cyan-400 cursor-pointer">
+                        📂
                         <input type="file" id="jsonYukle" class="hidden" accept=".json">
                     </label>
                 </div>
             </div>
 
             <div class="px-3 py-1.5">
-                <input type="text" id="sohbetArama" placeholder="Sohbetlerde ara..."
+                <input type="text" id="sohbetArama" placeholder="Tüm mesajlarda ara..."
                     class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
             </div>
 
@@ -175,9 +176,14 @@
                     </div>
                 </div>
 
-                <input type="text" id="mesajGiris" placeholder="Mesajınızı yazın..." 
+                <input type="text" id="mesajGiris" placeholder="Mesajınızı yazın veya mikrofonu kullanın..." 
                     class="flex-1 bg-transparent border-none outline-none px-1 text-xs md:text-sm placeholder-gray-500 text-gray-100 min-w-0">
                 
+                <!-- SESLİ KOMUT (MİKROFON) BUTONU -->
+                <button id="mikrofonBtn" title="Sesli Yaz" class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition text-sm cursor-pointer shrink-0">
+                    🎤
+                </button>
+
                 <button id="mesajGonderBtn" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-cyan-400 text-darkBg flex items-center justify-center font-bold hover:bg-cyan-300 transition shadow-md shrink-0 cursor-pointer text-sm">
                     ➤
                 </button>
@@ -233,10 +239,39 @@
         document.getElementById('yeniSohbetBtn').addEventListener('click', yeniSohbetBaslat);
         document.getElementById('baslikDuzenleBtn').addEventListener('click', aktifSohbetBasliginiDuzenle);
         document.getElementById('disaAktarBtn').addEventListener('click', sohbetleriDisaAktar);
+        document.getElementById('sohbetIndirBtn').addEventListener('click', aktifSohbetiTxtIndir);
         document.getElementById('jsonYukle').addEventListener('change', sohbetleriIceAktar);
         document.getElementById('mesajGonderBtn').addEventListener('click', mesajGonder);
         document.getElementById('dosyaIptalBtn').addEventListener('click', () => { yuklenenDosyaVerisi = null; secilenDosyaBilgi.classList.add('hidden'); });
         document.getElementById('sohbetArama').addEventListener('input', (e) => sohbetListesiniGuncelle(e.target.value));
+
+        // Sesli Asistan (Mikrofon)
+        const mikrofonBtn = document.getElementById('mikrofonBtn');
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'tr-TR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            mikrofonBtn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                    mikrofonBtn.classList.add('bg-cyan-500', 'text-darkBg');
+                } catch(e) {}
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                mesajGiris.value += (mesajGiris.value ? ' ' : '') + transcript;
+                mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg');
+            };
+
+            recognition.onerror = () => { mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg'); };
+            recognition.onend = () => { mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg'); };
+        } else {
+            mikrofonBtn.style.display = 'none';
+        }
 
         document.getElementById('gorselInput').addEventListener('change', (e) => dosyaSecildi(e, 'image'));
         document.getElementById('dosyaInput').addEventListener('change', (e) => dosyaSecildi(e, 'file'));
@@ -268,7 +303,7 @@
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('nova_tema', 'dark');
-                document.getElementById('temaToggleBtn').innerText = '☀️️';
+                document.getElementById('temaToggleBtn').innerText = '☀️';
             }
         }
 
@@ -383,7 +418,7 @@
             
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color: ${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
@@ -409,7 +444,11 @@
 
         function sohbetListesiniGuncelle(filtre = "") {
             gecmisListesi.innerHTML = "";
-            sohbetler.filter(s => s.baslik.toLowerCase().includes(filtre.toLowerCase())).forEach(s => {
+            sohbetler.filter(s => {
+                const baslikEslesme = s.baslik.toLowerCase().includes(filtre.toLowerCase());
+                const mesajEslesme = s.mesajlar.some(m => m.metin.toLowerCase().includes(filtre.toLowerCase()));
+                return baslikEslesme || mesajEslesme;
+            }).forEach(s => {
                 const div = document.createElement('div');
                 div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-xs md:text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
                 
@@ -435,7 +474,22 @@
 
         function sohbetleriDisaAktar() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sohbetler));
-            const a = document.createElement('a'); a.href = dataStr; a.download = `sohbetler.json`; a.click(); a.remove();
+            const a = document.createElement('a'); a.href = dataStr; a.download = `nova_yedek.json`; a.click(); a.remove();
+        }
+
+        function aktifSohbetiTxtIndir() {
+            const sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+            if (!sohbet || sohbet.mesajlar.length === 0) { alert("İndirilecek mesaj yok!"); return; }
+            let icerik = `Sohbet Başlığı: ${sohbet.baslik}\nTarih:${new Date().toLocaleString()}\n-----------------------------------\n\n`;
+            sohbet.mesajlar.forEach(m => {
+                icerik += `${m.rol === 'user' ? 'Kullanıcı' : 'NOVA'}: ${m.metin}\n\n`;
+            });
+            const blob = new Blob([icerik], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${sohbet.baslik.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+            a.click();
+            a.remove();
         }
 
         function sohbetleriIceAktar(e) {
@@ -478,6 +532,35 @@
                 bubble.innerHTML = `<p class="mb-1 text-[11px] text-cyan-300 font-semibold">${dosyaAdi || 'Görsel'}</p><img src="${metin}" class="rounded-xl w-full max-h-60 object-cover border border-gray-700">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
+                
+                bubble.querySelectorAll('pre').forEach(pre => {
+                    const code = pre.querySelector('code');
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerText = 'Kopyala';
+                    copyBtn.onclick = () => {
+                        navigator.clipboard.writeText(code ? code.innerText : pre.innerText);
+                        copyBtn.innerText = 'Kopyalandı!';
+                        setTimeout(() => copyBtn.innerText = 'Kopyala', 2000);
+                    };
+                    pre.appendChild(copyBtn);
+                });
+
+                const sesBtn = document.createElement('button');
+                sesBtn.className = 'mt-2 text-[11px] text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer';
+                sesBtn.innerHTML = '🔊 Sesli Dinle';
+                sesBtn.onclick = () => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(metin.replace(/[*#_`]/g, ''));
+                        utterance.lang = 'tr-TR';
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        alert("Tarayıcınız sesli okumayı desteklemiyor.");
+                    }
+                };
+                bubble.appendChild(sesBtn);
+
             } else {
                 bubble.innerText = metin;
             }
@@ -487,11 +570,35 @@
             if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
         }
 
+        // GELİŞTİRİLMİŞ SAĞLAM AI BAĞLANTI FONKSİYONU ({ } HATASI VE BOŞ YANIT ENGELLİ)
         async function gercekAiYanitAl(metin) {
+            const sistemTalimati = "Sen NOVA adlı profesyonel yapay zeka asistanısın. Türkçe yanıt ver. Asla boş süslü parantez {} veya anlamsız kısa karakterler döndürme. Güncel bilgileri, kod yazmayı ve açıklamaları eksiksiz yap.";
+            
+            for (let deneme = 0; deneme < 3; deneme++) {
+                try {
+                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(sistemTalimati + " Kullanıcı Mesajı: " + metin)}?model=openai`);
+                    if (!res.ok) continue;
+                    let yanit = await res.text();
+                    
+                    if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}" && yanit.trim() !== "{}") {
+                        return yanit.trim();
+                    }
+                } catch (err) {
+                    console.error("Bağlantı denemesi başarısız:", err);
+                }
+            }
+            return "⚠️ Sunucudan geçici olarak yanıt alınamadı veya sunucu yoğun. Lütfen tekrar deneyin.";
+        }
+
+        async function akilliBaslikOlustur(ilkMesaj) {
             try {
-                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("Sen NOVA adlı asistanısın Türkçe yanıt ver: " + metin)}?model=openai`);
-                return await res.text();
-            } catch { return "Bağlantı hatası oluştu."; }
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("Şu cümle için maksimum 3-4 kelimeden oluşan kısa, özet bir sohbet başlığı yaz, tırnak kullanma: " + ilkMesaj)}?model=openai`);
+                let baslik = await res.text();
+                if (!baslik || baslik.trim() === "{}" || baslik.includes("error")) throw new Error();
+                return baslik.trim().replace(/['"]/g, '').substring(0, 25);
+            } catch {
+                return ilkMesaj.substring(0, 20);
+            }
         }
 
         async function mesajGonder() {
@@ -505,10 +612,7 @@
             secilenDosyaBilgi.classList.add('hidden');
             mesajGiris.value = "";
 
-            if (sohbet.baslik === "Yeni Sohbet") {
-                sohbet.baslik = (metin || aktifDosya.isim).substring(0, 20);
-                aktifBaslik.innerText = sohbet.baslik;
-            }
+            let ilkMesajMi = sohbet.mesajlar.length === 0;
 
             if (aktifDosya) {
                 sohbet.mesajlar.push({ rol: 'user', metin: aktifDosya.veri, tip: 'image-upload', dosyaAdi: aktifDosya.isim });
@@ -524,6 +628,15 @@
             sohbet.mesajlar.push({ rol: 'user', metin, tip: 'text' });
             mesajEkranaEkle('user', metin, sohbet.mesajlar.length - 1, true, 'text');
             verileriKaydet();
+
+            if (ilkMesajMi) {
+                akilliBaslikOlustur(metin).then(yeniBaslik => {
+                    sohbet.baslik = yeniBaslik;
+                    aktifBaslik.innerText = yeniBaslik;
+                    verileriKaydet();
+                    sohbetListesiniGuncelle();
+                });
+            }
 
             sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
             mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
