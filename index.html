@@ -43,7 +43,11 @@
         .copy-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 3px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; z-index: 10; transition: background 0.2s; }
         .copy-btn:hover { background: rgba(0, 242, 254, 0.3); color: #fff; }
 
-        #sidebar { transition: transform 0.3s ease-in-out; }
+        /* Sol Menü Geçişleri ve Gizleme Durumları */
+        #sidebar { transition: transform 0.3s ease-in-out, margin-left 0.3s ease-in-out; }
+        @media (min-width: 769px) {
+            #sidebar.sidebar-kapali { margin-left: -18rem; } /* 72 birim (w-72) kadar sola kaydırıp tamamen gizler */
+        }
         @media (max-width: 768px) {
             #sidebar { width: 80% !important; max-width: 300px; }
             #sidebar.sidebar-kapali { transform: translateX(-100%); }
@@ -417,7 +421,7 @@
             
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color: ${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
