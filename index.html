@@ -42,7 +42,6 @@
 
         .copy-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 3px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; z-index: 10; transition: background 0.2s; }
         .copy-btn:hover { background: rgba(0, 242, 254, 0.3); color: #fff; }
-        .lang-badge { position: absolute; top: 6px; left: 10px; color: #00f2fe; font-size: 10px; font-family: monospace; font-weight: bold; text-transform: uppercase; z-index: 10; }
 
         #sidebar { transition: transform 0.3s ease-in-out; }
         @media (max-width: 768px) {
@@ -418,7 +417,7 @@
             
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color: ${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
@@ -521,7 +520,7 @@
 
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-3 group`;
+            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-3 group relative`;
             
             const bubble = document.createElement('div');
             bubble.className = `max-w-[90%] md:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs md:text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none shadow-sm'}`;
@@ -565,12 +564,47 @@
                 bubble.innerText = metin;
             }
 
+            // HOVER İLE ÇIKAN DÜZENLE VE SİL BUTONLARI
+            if (tip !== 'typing') {
+                const actionMenu = document.createElement('div');
+                actionMenu.className = `absolute -top-3 ${rol === 'user' ? 'right-2' : 'left-2'} hidden group-hover:flex items-center gap-1 bg-sidebarBg border border-gray-700 rounded-lg px-2 py-0.5 shadow-md z-10 text-[10px]`;
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'text-cyan-400 hover:underline cursor-pointer';
+                editBtn.innerText = '✏️ Düzenle';
+                editBtn.onclick = () => {
+                    let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+                    if (!sohbet) return;
+                    let yeniIcerik = prompt("Mesajı düzenle:", sohbet.mesajlar[index].metin);
+                    if (yeniIcerik !== null && yeniIcerik.trim() !== "") {
+                        sohbet.mesajlar[index].metin = yeniIcerik.trim();
+                        verileriKaydet();
+                        aktifSohbetiYukle(aktifSohbetId);
+                    }
+                };
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'text-red-400 hover:underline cursor-pointer ml-1';
+                deleteBtn.innerText = '🗑️ Sil';
+                deleteBtn.onclick = () => {
+                    let sohbet = sohbetler.find(s => s.id === aktifSohbetId);
+                    if (!sohbet) return;
+                    sohbet.mesajlar.splice(index, 1);
+                    verileriKaydet();
+                    aktifSohbetiYukle(aktifSohbetId);
+                };
+
+                actionMenu.appendChild(editBtn);
+                actionMenu.appendChild(deleteBtn);
+                wrapper.appendChild(actionMenu);
+            }
+
             wrapper.appendChild(bubble);
             sohbetKutusu.appendChild(wrapper);
             if (scroll) sohbetKutusu.scrollTop = sohbetKutusu.scrollHeight;
         }
 
-        // GELİŞTİRİLMİŞ SAĞLAM AI BAĞLANTI FONKSİYONU ({ } HATASI VE BOŞ YANIT ENGELLİ)
+        // GELİŞTİRİLMİŞ SAĞLAM AI BAĞLANTI FONKSİYONU
         async function gercekAiYanitAl(metin) {
             const sistemTalimati = "Sen NOVA adlı profesyonel yapay zeka asistanısın. Türkçe yanıt ver. Asla boş süslü parantez {} veya anlamsız kısa karakterler döndürme. Güncel bilgileri, kod yazmayı ve açıklamaları eksiksiz yap.";
             
@@ -580,7 +614,7 @@
                     if (!res.ok) continue;
                     let yanit = await res.text();
                     
-                    if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}" && yanit.trim() !== "{}") {
+                    if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}") {
                         return yanit.trim();
                     }
                 } catch (err) {
