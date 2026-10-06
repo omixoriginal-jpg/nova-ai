@@ -43,7 +43,6 @@
         .copy-btn { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.1); color: #ccc; border: none; padding: 3px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; z-index: 10; transition: background 0.2s; }
         .copy-btn:hover { background: rgba(0, 242, 254, 0.3); color: #fff; }
 
-        /* Sol Menü Geçişleri ve Gizleme Durumları */
         #sidebar { transition: transform 0.3s ease-in-out, margin-left 0.3s ease-in-out; }
         @media (min-width: 769px) {
             #sidebar.sidebar-kapali { margin-left: -18rem; }
@@ -109,7 +108,6 @@
             <div id="gecmisListesi" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4 max-h-[calc(100dvh-280px)]"></div>
         </div>
 
-        <!-- SOL ALT KÖŞE: ATMOSFER VE SES KONTROLLERİ -->
         <div class="p-3 border-t border-gray-800/50 flex gap-2 bg-sidebarBg">
             <div class="relative flex-1">
                 <div id="atmosferMenu" class="hidden absolute bottom-12 left-0 w-48 bg-sidebarBg border border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 max-h-60 overflow-y-auto">
@@ -186,7 +184,6 @@
                 <input type="text" id="mesajGiris" placeholder="Mesajınızı yazın (Örn: 'Şu köpeğin resmini çiz')..." 
                     class="flex-1 bg-transparent border-none outline-none px-1 text-xs md:text-sm placeholder-gray-500 text-gray-100 min-w-0">
                 
-                <!-- MİKROFON BUTONU -->
                 <button id="mikrofonBtn" title="Sesli Yaz" class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center transition text-sm cursor-pointer shrink-0">
                     🎤
                 </button>
@@ -260,7 +257,6 @@
             }
         });
 
-        // Sesli Asistan (Mikrofon)
         const mikrofonBtn = document.getElementById('mikrofonBtn');
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
@@ -270,20 +266,14 @@
             recognition.interimResults = false;
 
             mikrofonBtn.addEventListener('click', () => {
-                try {
-                    recognition.start();
-                    mikrofonBtn.classList.add('bg-cyan-500', 'text-darkBg');
-                } catch(e) {}
+                try { recognition.start(); mikrofonBtn.classList.add('bg-cyan-500', 'text-darkBg'); } catch(e) {}
             });
-
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                mesajGiris.value += (mesajGiris.value ? ' ' : '') + transcript;
+                mesajGiris.value += (mesajGiris.value ? ' ' : '') + event.results[0][0].transcript;
                 mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg');
             };
-
-            recognition.onerror = () => { mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg'); };
-            recognition.onend = () => { mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg'); };
+            recognition.onerror = () => mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg');
+            recognition.onend = () => mikrofonBtn.classList.remove('bg-cyan-500', 'text-darkBg');
         } else {
             mikrofonBtn.style.display = 'none';
         }
@@ -305,9 +295,7 @@
 
         function menuAcKapat() {
             sidebar.classList.toggle('sidebar-kapali');
-            if (window.innerWidth < 768) {
-                mobilPerde.classList.toggle('hidden');
-            }
+            if (window.innerWidth < 768) mobilPerde.classList.toggle('hidden');
         }
 
         function temaToggle() {
@@ -318,7 +306,7 @@
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('nova_tema', 'dark');
-                document.getElementById('temaToggleBtn').innerText = '☀️';
+                document.getElementById('temaToggleBtn').innerText = '☀️️';
             }
         }
 
@@ -333,7 +321,6 @@
         function muzikCal(tur) {
             muzikMenu.classList.add('hidden');
             sesSisteminiSifirla();
-
             if (tur === 'karadelik') {
                 baslatKaraDelikSesi();
                 muzikMenuToggleBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
@@ -343,10 +330,7 @@
                 muzikMenuToggleBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
                 muzikBtnMetin.innerText = 'Çalıyor';
             } else {
-                let kaynaklar = {
-                    lofi: "https://stream.zeno.fm/f3wvbbqmdg8uv",
-                    yagmur: "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg"
-                };
+                let kaynaklar = { lofi: "https://stream.zeno.fm/f3wvbbqmdg8uv", yagmur: "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg" };
                 arkaPlanMuzik.src = kaynaklar[tur] || kaynaklar.lofi;
                 arkaPlanMuzik.play().then(() => {
                     muzikMenuToggleBtn.classList.add('bg-cyan-500/20', 'border-cyan-500');
@@ -361,12 +345,10 @@
             const osc2 = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             const filter = audioCtx.createBiquadFilter();
-
             osc1.type = 'sine'; osc1.frequency.setValueAtTime(45, audioCtx.currentTime);
             osc2.type = 'triangle'; osc2.frequency.setValueAtTime(50, audioCtx.currentTime);
             filter.type = 'lowpass'; filter.frequency.setValueAtTime(120, audioCtx.currentTime);
             gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-
             osc1.connect(filter); osc2.connect(filter);
             filter.connect(gainNode); gainNode.connect(audioCtx.destination);
             osc1.start(); osc2.start();
@@ -379,13 +361,11 @@
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
             const noise = audioCtx.createBufferSource();
             noise.buffer = buffer; noise.loop = true;
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'bandpass'; filter.frequency.setValueAtTime(800, audioCtx.currentTime);
             const gainNode = audioCtx.createGain(); gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-
             noise.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
             noise.start(); activeSynthNodes.push(noise);
 
@@ -430,10 +410,9 @@
             const secilen = renkler[mod] || renkler.derinUzay;
             document.body.style.backgroundColor = secilen.bg;
             document.getElementById('sidebar').style.backgroundColor = secilen.sidebar;
-            
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color: ${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
@@ -459,22 +438,15 @@
 
         function sohbetListesiniGuncelle(filtre = "") {
             gecmisListesi.innerHTML = "";
-            sohbetler.filter(s => {
-                const baslikEslesme = s.baslik.toLowerCase().includes(filtre.toLowerCase());
-                const mesajEslesme = s.mesajlar.some(m => m.metin.toLowerCase().includes(filtre.toLowerCase()));
-                return baslikEslesme || mesajEslesme;
-            }).forEach(s => {
+            sohbetler.filter(s => s.baslik.toLowerCase().includes(filtre.toLowerCase()) || s.mesajlar.some(m => m.metin.toLowerCase().includes(filtre.toLowerCase()))).forEach(s => {
                 const div = document.createElement('div');
                 div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-xs md:text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
-                
                 const span = document.createElement('span');
                 span.className = 'truncate flex-1'; span.innerText = s.baslik;
                 span.addEventListener('click', () => aktifSohbetiYukle(s.id));
-                
                 const silBtn = document.createElement('button');
                 silBtn.className = 'text-red-400 hover:text-red-300 px-1 text-xs'; silBtn.innerText = '✕';
                 silBtn.addEventListener('click', (ev) => { ev.stopPropagation(); sohbetler = sohbetler.filter(x => x.id !== s.id); verileriKaydet(); if(sohbetler.length === 0) yeniSohbetBaslat(); else aktifSohbetiYukle(sohbetler[0].id); });
-
                 div.appendChild(span); div.appendChild(silBtn);
                 gecmisListesi.appendChild(div);
             });
@@ -496,15 +468,11 @@
             const sohbet = sohbetler.find(s => s.id === aktifSohbetId);
             if (!sohbet || sohbet.mesajlar.length === 0) { alert("İndirilecek mesaj yok!"); return; }
             let icerik = `Sohbet Başlığı: ${sohbet.baslik}\nTarih:${new Date().toLocaleString()}\n-----------------------------------\n\n`;
-            sohbet.mesajlar.forEach(m => {
-                icerik += `${m.rol === 'user' ? 'Kullanıcı' : 'NOVA'}: ${m.metin}\n\n`;
-            });
+            sohbet.mesajlar.forEach(m => { icerik += `${m.rol === 'user' ? 'Kullanıcı' : 'NOVA'}: ${m.metin}\n\n`; });
             const blob = new Blob([icerik], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `${sohbet.baslik.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
-            a.click();
-            a.remove();
+            a.click(); a.remove();
         }
 
         function sohbetleriIceAktar(e) {
@@ -512,11 +480,7 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                try {
-                    sohbetler = JSON.parse(evt.target.result);
-                    verileriKaydet();
-                    if(sohbetler.length > 0) aktifSohbetiYukle(sohbetler[0].id);
-                } catch(err) { alert("Geçersiz dosya!"); }
+                try { sohbetler = JSON.parse(evt.target.result); verileriKaydet(); if(sohbetler.length > 0) aktifSohbetiYukle(sohbetler[0].id); } catch(err) { alert("Geçersiz dosya!"); }
             };
             reader.readAsText(file);
         }
@@ -534,31 +498,30 @@
             reader.readAsDataURL(file);
         }
 
-        // Akıllı Görsel Üretme Tetikleyicisi
+        // KESİN GÖRSEL TESPİTİ (ASCII/Metin yanıtı engeller, doğrudan görsel oluşturur)
         function gorselIstegiMi(metin) {
             const kucuk = metin.toLowerCase();
             return kucuk.includes("resmini çiz") || kucuk.includes("fotoğrafını yap") || 
                    kucuk.includes("görsel üret") || kucuk.includes("resmini yap") || 
                    kucuk.includes("fotoğrafını çiz") || kucuk.includes("çiz") || 
-                   kucuk.startsWith("görsel:") || kucuk.startsWith("resim:");
+                   kucuk.includes("resim yap") || kucuk.startsWith("görsel:") || kucuk.startsWith("resim:");
         }
 
         async function yapayZekaGorselUret(promptMetni) {
             let sohbet = sohbetler.find(s => s.id === aktifSohbetId) || (() => { yeniSohbetBaslat(); return sohbetler[0]; })();
             
-            // Yazılıyor animasyonu ekle
             sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
             mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
 
-            // Görsel URL oluşturma
+            // İngilizceye çevirerek görsel kalitesini artırıyoruz veya doğrudan promptu veriyoruz
             const gorselUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptMetni)}`;
 
             setTimeout(() => {
-                sohbet.mesajlar.pop(); // Yazılıyor animasyonunu kaldır
+                sohbet.mesajlar.pop();
                 sohbet.mesajlar.push({ rol: 'assistant', metin: gorselUrl, tip: 'image', dosyaAdi: promptMetni });
                 verileriKaydet();
                 aktifSohbetiYukle(aktifSohbetId);
-            }, 1200);
+            }, 1000);
         }
 
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
@@ -597,12 +560,9 @@
                         const utterance = new SpeechSynthesisUtterance(metin.replace(/[*#_`]/g, ''));
                         utterance.lang = 'tr-TR';
                         window.speechSynthesis.speak(utterance);
-                    } else {
-                        alert("Tarayıcınız sesli okumayı desteklemiyor.");
                     }
                 };
                 bubble.appendChild(sesBtn);
-
             } else {
                 bubble.innerText = metin;
             }
@@ -647,27 +607,21 @@
         }
 
         async function gercekAiYanitAl(metin) {
-            const sistemTalimati = "Sen NOVA adlı profesyonel yapay zeka asistanısın. Türkçe yanıt ver. Asla boş süslü parantez {} veya anlamsız kısa karakterler döndürme. Güncel bilgileri, kod yazmayı ve açıklamaları eksiksiz yap.";
-            
+            const sistemTalimati = "Sen NOVA adlı profesyonel yapay zeka asistanısın. Türkçe yanıt ver. Asla boş süslü parantez {} veya anlamsız kısa karakterler döndürme.";
             for (let deneme = 0; deneme < 3; deneme++) {
                 try {
                     const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(sistemTalimati + " Kullanıcı Mesajı: " + metin)}?model=openai`);
                     if (!res.ok) continue;
                     let yanit = await res.text();
-                    
-                    if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}") {
-                        return yanit.trim();
-                    }
-                } catch (err) {
-                    console.error("Bağlantı denemesi başarısız:", err);
-                }
+                    if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}") return yanit.trim();
+                } catch (err) {}
             }
-            return "⚠️ Sunucudan geçici olarak yanıt alınamadı veya sunucu yoğun. Lütfen tekrar deneyin.";
+            return "⚠️️ Sunucudan geçici olarak yanıt alınamadı. Lütfen tekrar deneyin.";
         }
 
         async function akilliBaslikOlustur(ilkMesaj) {
             try {
-                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("Şu cümle için maksimum 3-4 kelimeden oluşan kısa, özet bir sohbet başlığı yaz, tırnak kullanma: " + ilkMesaj)}?model=openai`);
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("Şu cümle için maksimum 3-4 kelimeden oluşan kısa bir başlık yaz, tırnak kullanma: " + ilkMesaj)}?model=openai`);
                 let baslik = await res.text();
                 if (!baslik || baslik.trim() === "{}" || baslik.includes("error")) throw new Error();
                 return baslik.trim().replace(/['"]/g, '').substring(0, 25);
@@ -707,13 +661,13 @@
             if (ilkMesajMi) {
                 akilliBaslikOlustur(metin).then(yeniBaslik => {
                     sohbet.baslik = yeniBaslik;
-                    aktifBaslik.innerText = yeniId = yeniBaslik;
+                    aktifBaslik.innerText = yeniBaslik;
                     verileriKaydet();
                     sohbetListesiniGuncelle();
                 });
             }
 
-            // Normal sohbet mi yoksa doğrudan görsel üretme isteği mi kontrol et
+            // ÖNEMLİ DEĞİŞİKLİK: Metin yapay zekasına gitmeden doğrudan görsel motorunu tetikler
             if (gorselIstegiMi(metin)) {
                 yapayZekaGorselUret(metin);
             } else {
