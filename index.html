@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVA Pro — Profesyonel Yapay Zeka Asistanı</title>
+    <title>NOVA — Profesyonel Yapay Zeka Asistanı</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Markdown için Marked.js -->
@@ -77,15 +77,29 @@
                     <div class="w-10 h-10 rounded-full bg-[#12233f] flex items-center justify-center shadow-lg border border-cyan-500/30 overflow-hidden shrink-0">
                         <img src="logo.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
                     </div>
-                    <h1 class="text-base font-bold tracking-wider text-cyan-400">NOVA PRO</h1>
+                    <h1 class="text-base font-bold tracking-wider text-cyan-400">NOVA</h1>
                 </div>
                 <button id="mobilMenuKapat" class="md:hidden text-gray-400 hover:text-white p-1 text-lg cursor-pointer">✕</button>
             </div>
 
-            <div class="p-3">
+            <div class="p-3 space-y-2">
                 <button id="yeniSohbetBtn" class="w-full bg-[#6c5ce7] hover:bg-[#827ffe] text-white font-semibold py-2 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm cursor-pointer">
                     <span>+ Yeni Sohbet</span>
                 </button>
+
+                <!-- PARALI / ÖZEL MODELLER ALANI -->
+                <div class="bg-darkBg/60 border border-gray-800 rounded-xl p-2 space-y-1.5">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1 flex items-center justify-between">
+                        <span>Yapay Zeka Modelleri</span>
+                        <span class="text-cyan-400 text-[9px]">👑 Pro</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                        <button class="model-btn bg-cyan-500/20 border border-cyan-500 text-cyan-300 py-1.5 px-2 rounded-lg font-medium text-center transition cursor-pointer" data-model="ucretsiz">⚡ Ücretsiz</button>
+                        <button class="model-btn bg-gray-800/50 border border-gray-700/50 text-gray-400 py-1.5 px-2 rounded-lg text-center transition hover:bg-gray-800 cursor-pointer" data-model="pro">💎 Pro (Kilidi Aç)</button>
+                        <button class="model-btn bg-gray-800/50 border border-gray-700/50 text-gray-400 py-1.5 px-2 rounded-lg text-center transition hover:bg-gray-800 cursor-pointer" data-model="ultra">🚀 Ultra (Kilidi Aç)</button>
+                        <button class="model-btn bg-gray-800/50 border border-gray-700/50 text-gray-400 py-1.5 px-2 rounded-lg text-center transition hover:bg-gray-800 cursor-pointer" data-model="otomatik">🔄 Otomatik</button>
+                    </div>
+                </div>
             </div>
 
             <div class="px-3 py-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
@@ -105,7 +119,7 @@
                     class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
             </div>
 
-            <div id="gecmisListesi" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4 max-h-[calc(100dvh-280px)]"></div>
+            <div id="gecmisListesi" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4 max-h-[calc(100dvh-340px)]"></div>
         </div>
 
         <div class="p-3 border-t border-gray-800/50 flex gap-2 bg-sidebarBg">
@@ -205,6 +219,7 @@
         let yuklenenDosyaVerisi = null;
         let mevcutTema = localStorage.getItem('nova_tema') || 'dark';
         let aktifAtmosfer = localStorage.getItem('nova_atmosfer') || 'derinUzay';
+        let seciliModel = 'ucretsiz';
 
         let audioCtx = null;
         let activeSynthNodes = [];
@@ -230,6 +245,22 @@
         const arkaPlanMuzik = document.getElementById('arkaPlanMuzik');
         const muzikBtnMetin = document.getElementById('muzikBtnMetin');
         const muzikMenuToggleBtn = document.getElementById('muzikMenuToggleBtn');
+
+        // Model Seçimi Yönetimi (Ücretsiz aktif, diğerleri kilitli)
+        document.querySelectorAll('.model-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modelTuru = btn.getAttribute('data-model');
+                if (modelTuru === 'ucretsiz') {
+                    seciliModel = 'ucretsiz';
+                    document.querySelectorAll('.model-btn').forEach(b => {
+                        b.className = "model-btn bg-gray-800/50 border border-gray-700/50 text-gray-400 py-1.5 px-2 rounded-lg text-center transition hover:bg-gray-800 cursor-pointer";
+                    });
+                    btn.className = "model-btn bg-cyan-500/20 border border-cyan-500 text-cyan-300 py-1.5 px-2 rounded-lg font-medium text-center transition cursor-pointer";
+                } else {
+                    alert("🔒 Bu model (Pro/Ultra/Otomatik) şu anda ücrete tabidir veya henüz aktif değildir. Lütfen ücretsiz model ile devam edin.");
+                }
+            });
+        });
 
         document.getElementById('temaToggleBtn').addEventListener('click', temaToggle);
         document.getElementById('menuToggleBtn').addEventListener('click', menuAcKapat);
@@ -306,7 +337,7 @@
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('nova_tema', 'dark');
-                document.getElementById('temaToggleBtn').innerText = '☀️️';
+                document.getElementById('temaToggleBtn').innerText = '☀️';
             }
         }
 
@@ -498,7 +529,6 @@
             reader.readAsDataURL(file);
         }
 
-        // KESİN GÖRSEL TESPİTİ (ASCII/Metin yanıtı engeller, doğrudan görsel oluşturur)
         function gorselIstegiMi(metin) {
             const kucuk = metin.toLowerCase();
             return kucuk.includes("resmini çiz") || kucuk.includes("fotoğrafını yap") || 
@@ -513,7 +543,6 @@
             sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
             mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
 
-            // İngilizceye çevirerek görsel kalitesini artırıyoruz veya doğrudan promptu veriyoruz
             const gorselUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptMetni)}`;
 
             setTimeout(() => {
@@ -616,7 +645,7 @@
                     if (yanit && yanit.trim() !== "" && yanit.trim() !== "{}") return yanit.trim();
                 } catch (err) {}
             }
-            return "⚠️️ Sunucudan geçici olarak yanıt alınamadı. Lütfen tekrar deneyin.";
+            return "⚠️ Sunucudan geçici olarak yanıt alınamadı. Lütfen tekrar deneyin.";
         }
 
         async function akilliBaslikOlustur(ilkMesaj) {
@@ -667,7 +696,6 @@
                 });
             }
 
-            // ÖNEMLİ DEĞİŞİKLİK: Metin yapay zekasına gitmeden doğrudan görsel motorunu tetikler
             if (gorselIstegiMi(metin)) {
                 yapayZekaGorselUret(metin);
             } else {
