@@ -69,49 +69,50 @@
 
     <div id="mobilPerde" class="fixed inset-0 bg-black/70 z-35 hidden md:hidden transition-opacity"></div>
 
-    <!-- BÜYÜK MODEL SEÇİM PANELİ (MODAL) -->
+    <!-- GENİŞ VE BÜYÜK DİKEY MODEL SEÇİM PANELİ (MODAL) -->
     <div id="modelModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-sidebarBg border border-gray-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+        <div class="bg-sidebarBg border border-gray-700 w-full max-w-xl rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in duration-200">
             <div class="flex items-center justify-between border-b border-gray-800 pb-4">
                 <div>
-                    <h3 class="text-base font-bold text-cyan-400 flex items-center gap-2">🧠 Yapay Zeka Modelini Seç</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Sohbetleriniz için en uygun motoru belirleyin.</p>
+                    <h3 class="text-lg font-bold text-cyan-400 flex items-center gap-2">🧠 Yapay Zeka Modelini Seç</h3>
+                    <p class="text-xs text-gray-400 mt-1">Sohbetleriniz için dilediğiniz motoru dikey listeden seçin.</p>
                 </div>
-                <button id="modalKapatBtn" class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-sm cursor-pointer transition">✕</button>
+                <button id="modalKapatBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-sm cursor-pointer transition">✕</button>
             </div>
             
-            <div class="space-y-3">
-                <div class="model-secim-karti p-4 rounded-2xl border border-cyan-500 bg-cyan-500/10 cursor-pointer transition flex items-center justify-between" data-model="ucretsiz">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">⚡</div>
+            <!-- DİKEY VE GENİŞ LİSTE -->
+            <div class="flex flex-col space-y-3.5">
+                <div class="model-secim-karti p-4.5 rounded-2xl border border-cyan-500 bg-cyan-500/10 cursor-pointer transition flex items-center justify-between shadow-lg" data-model="ucretsiz">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl shrink-0">⚡</div>
                         <div>
-                            <div class="text-sm font-bold text-cyan-300">Ücretsiz Model (Aktif)</div>
-                            <div class="text-xs text-gray-400">Standart akıllı yanıtlar, metin analizi ve sınırsız görsel üretimi.</div>
+                            <div class="text-sm sm:text-base font-bold text-cyan-300">Ücretsiz Model (Aktif)</div>
+                            <div class="text-xs text-gray-400 mt-0.5">Standart akıllı yanıtlar, metin analizi ve sınırsız görsel üretimi.</div>
                         </div>
                     </div>
-                    <span class="text-cyan-400 text-xs font-bold px-3 py-1 bg-cyan-500/20 rounded-lg">Seçili</span>
+                    <span class="text-cyan-400 text-xs font-bold px-3 py-1.5 bg-cyan-500/20 rounded-xl shrink-0">Seçili</span>
                 </div>
 
-                <div class="model-secim-karti p-4 rounded-2xl border border-gray-800 bg-darkBg/50 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80" data-model="pro">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center text-yellow-400 text-lg">💎</div>
+                <div class="model-secim-karti p-4.5 rounded-2xl border border-gray-800 bg-darkBg/60 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80" data-model="pro">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-yellow-400 text-xl shrink-0">💎</div>
                         <div>
-                            <div class="text-sm font-bold text-gray-200">NOVA Pro (Ücretli)</div>
-                            <div class="text-xs text-gray-500">Gelişmiş mantık yürütme, profesyonel kod analizi ve öncelikli hız.</div>
+                            <div class="text-sm sm:text-base font-bold text-gray-200">NOVA Pro (Ücretli)</div>
+                            <div class="text-xs text-gray-500 mt-0.5">Gelişmiş mantık yürütme, profesyonel kod analizi ve öncelikli hız.</div>
                         </div>
                     </div>
-                    <span class="text-gray-400 text-xs px-3 py-1 bg-gray-800 rounded-lg">🔒 Kilitli</span>
+                    <span class="text-gray-400 text-xs px-3 py-1.5 bg-gray-800 rounded-xl shrink-0">🔒 Kilitli</span>
                 </div>
 
-                <div class="model-secim-karti p-4 rounded-2xl border border-gray-800 bg-darkBg/50 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80" data-model="ultra">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center text-purple-400 text-lg">🚀</div>
+                <div class="model-secim-karti p-4.5 rounded-2xl border border-gray-800 bg-darkBg/60 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80" data-model="ultra">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-purple-400 text-xl shrink-0">🚀</div>
                         <div>
-                            <div class="text-sm font-bold text-gray-200">NOVA Ultra (Ücretli)</div>
-                            <div class="text-xs text-gray-500">En üst düzey yapay zeka gücü, derinlemesine araştırma ve özel modlar.</div>
+                            <div class="text-sm sm:text-base font-bold text-gray-200">NOVA Ultra (Ücretli)</div>
+                            <div class="text-xs text-gray-500 mt-0.5">En üst düzey yapay zeka gücü, derinlemesine araştırma ve özel modlar.</div>
                         </div>
                     </div>
-                    <span class="text-gray-400 text-xs px-3 py-1 bg-gray-800 rounded-lg">🔒 Kilitli</span>
+                    <span class="text-gray-400 text-xs px-3 py-1.5 bg-gray-800 rounded-xl shrink-0">🔒 Kilitli</span>
                 </div>
             </div>
 
@@ -301,13 +302,13 @@
                 if (tur === 'ucretsiz') {
                     document.getElementById('aktifModelAdi').innerText = 'Ücretsiz Model';
                     document.querySelectorAll('.model-secim-karti').forEach(k => {
-                        k.className = "model-secim-karti p-4 rounded-2xl border border-gray-800 bg-darkBg/50 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80";
+                        k.className = "model-secim-karti p-4.5 rounded-2xl border border-gray-800 bg-darkBg/60 hover:border-gray-700 cursor-pointer transition flex items-center justify-between opacity-80";
                         k.querySelector('span:last-child').innerText = "🔒 Kilitli";
-                        k.querySelector('span:last-child').className = "text-gray-400 text-xs px-3 py-1 bg-gray-800 rounded-lg";
+                        k.querySelector('span:last-child').className = "text-gray-400 text-xs px-3 py-1.5 bg-gray-800 rounded-xl shrink-0";
                     });
-                    kart.className = "model-secim-karti p-4 rounded-2xl border border-cyan-500 bg-cyan-500/10 cursor-pointer transition flex items-center justify-between";
+                    kart.className = "model-secim-karti p-4.5 rounded-2xl border border-cyan-500 bg-cyan-500/10 cursor-pointer transition flex items-center justify-between shadow-lg";
                     kart.querySelector('span:last-child').innerText = "Seçili";
-                    kart.querySelector('span:last-child').className = "text-cyan-400 text-xs font-bold px-3 py-1 bg-cyan-500/20 rounded-lg";
+                    kart.querySelector('span:last-child').className = "text-cyan-400 text-xs font-bold px-3 py-1.5 bg-cyan-500/20 rounded-xl shrink-0";
                     modelModal.classList.add('hidden');
                 } else {
                     alert("🔒 Bu model (Pro / Ultra) şu anda kilitlidir ve kullanılamaz. Lütfen Ücretsiz Model ile devam edin.");
