@@ -80,7 +80,6 @@
                 <button id="modalKapatBtn" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-sm cursor-pointer transition">✕</button>
             </div>
             
-            <!-- DİKEY VE GENİŞLETİLMİŞ MODELLER LİSTESİ -->
             <div class="flex flex-col space-y-4 my-auto">
                 <div class="model-secim-karti p-5 rounded-2xl border border-cyan-500 bg-cyan-500/10 cursor-pointer transition flex items-center justify-between shadow-lg" data-model="ucretsiz">
                     <div class="flex items-center gap-4">
@@ -131,6 +130,23 @@
         </div>
     </div>
 
+    <!-- E-POSTA GİRİŞ / KAYIT MODALI -->
+    <div id="authModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-gray-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col justify-between">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
+                <h3 id="authBaslik" class="text-sm font-bold text-cyan-400">Hesap Girişi / Kayıt Ol</h3>
+                <button id="authKapatBtn" class="w-7 h-7 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-xs cursor-pointer">✕</button>
+            </div>
+            <div class="space-y-3">
+                <input type="email" id="authEmail" placeholder="E-posta adresiniz" class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 outline-none focus:border-cyan-500">
+                <input type="password" id="authSifre" placeholder="Şifreniz" class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 outline-none focus:border-cyan-500">
+                <button id="girisYapBtn" class="w-full bg-cyan-500 text-darkBg font-bold py-2 rounded-xl text-xs hover:bg-cyan-400 transition cursor-pointer">Giriş Yap</button>
+                <button id="kayitOlBtn" class="w-full bg-gray-800 text-cyan-400 font-bold py-2 rounded-xl text-xs hover:bg-gray-700 transition cursor-pointer">Kayıt Ol</button>
+            </div>
+            <div id="authBilgi" class="text-[11px] text-gray-400 text-center mt-3">Tamamen Ücretsiz Yerel Oturum Sistemi</div>
+        </div>
+    </div>
+
     <!-- SOL MENÜ -->
     <aside id="sidebar" class="w-72 bg-sidebarBg flex flex-col border-r border-gray-800 z-40 fixed md:relative h-full shadow-2xl md:shadow-none justify-between sidebar-kapali md:translate-x-0 inset-y-0 left-0">
         <div>
@@ -155,6 +171,14 @@
                 </button>
             </div>
 
+            <!-- E-POSTA HESAP YÖNETİM BUTONU -->
+            <div class="px-3 pb-2">
+                <button id="hesapAcBtn" class="w-full bg-darkBg border border-gray-800 hover:border-cyan-500/50 text-gray-300 py-2 px-3 rounded-xl transition flex items-center justify-between text-xs cursor-pointer">
+                    <span id="kullaniciDurumMetni" class="truncate">👤 Giriş Yap / Kayıt Ol</span>
+                    <span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-lg">Ücretsiz</span>
+                </button>
+            </div>
+
             <div class="px-3 py-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
                 <span>Geçmiş</span>
                 <div class="flex gap-2">
@@ -172,7 +196,7 @@
                     class="w-full bg-darkBg border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 outline-none focus:border-cyan-500 transition">
             </div>
 
-            <div id="gecmisListesi" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4 max-h-[calc(100dvh-340px)]"></div>
+            <div id="gecmisListesi" class="flex-1 overflow-y-auto px-2 space-y-1 pb-4 max-h-[calc(100dvh-380px)]"></div>
         </div>
 
         <div class="p-3 border-t border-gray-800/50 flex gap-2 bg-sidebarBg">
@@ -272,6 +296,7 @@
         let yuklenenDosyaVerisi = null;
         let mevcutTema = localStorage.getItem('nova_tema') || 'dark';
         let aktifAtmosfer = localStorage.getItem('nova_atmosfer') || 'derinUzay';
+        let aktifKullanici = localStorage.getItem('nova_aktif_kullanici') || null;
 
         let audioCtx = null;
         let activeSynthNodes = [];
@@ -282,6 +307,7 @@
         }
 
         atmosferUygula(aktifAtmosfer);
+        kullaniciArayuzunuGuncelle();
 
         const sidebar = document.getElementById('sidebar');
         const mobilPerde = document.getElementById('mobilPerde');
@@ -302,6 +328,58 @@
         document.getElementById('modelSecModalBtn').addEventListener('click', () => modelModal.classList.remove('hidden'));
         document.getElementById('modalKapatBtn').addEventListener('click', () => modelModal.classList.add('hidden'));
         modelModal.addEventListener('click', (e) => { if(e.target === modelModal) modelModal.classList.add('hidden'); });
+
+        // E-posta Modal Kontrolleri
+        const authModal = document.getElementById('authModal');
+        document.getElementById('hesapAcBtn').addEventListener('click', () => {
+            if (aktifKullanici) {
+                if (confirm(`\${aktifKullanici} hesabından çıkış yapmak istiyor musunuz?`)) {
+                    aktifKullanici = null;
+                    localStorage.removeItem('nova_aktif_kullanici');
+                    kullaniciArayuzunuGuncelle();
+                }
+            } else {
+                authModal.classList.remove('hidden');
+            }
+        });
+        document.getElementById('authKapatBtn').addEventListener('click', () => authModal.classList.add('hidden'));
+
+        document.getElementById('girisYapBtn').addEventListener('click', () => {
+            const email = document.getElementById('authEmail').value.trim();
+            if (email) {
+                aktifKullanici = email;
+                localStorage.setItem('nova_aktif_kullanici', email);
+                kullaniciArayuzunuGuncelle();
+                authModal.classList.add('hidden');
+                alert(`Hoş geldin, \${email}! Giriş başarılı.`);
+            } else {
+                alert("Lütfen geçerli bir e-posta girin.");
+            }
+        });
+
+        document.getElementById('kayitOlBtn').addEventListener('click', () => {
+            const email = document.getElementById('authEmail').value.trim();
+            if (email) {
+                aktifKullanici = email;
+                localStorage.setItem('nova_aktif_kullanici', email);
+                kullaniciArayuzunuGuncelle();
+                authModal.classList.add('hidden');
+                alert(`Kayıt oluşturuldu ve giriş yapıldı: \${email}`);
+            } else {
+                alert("Lütfen geçerli bir e-posta girin.");
+            }
+        });
+
+        function kullaniciArayuzunuGuncelle() {
+            const metinSpan = document.getElementById('kullaniciDurumMetni');
+            if (aktifKullanici) {
+                metinSpan.innerText = `👤 \${aktifKullanici}`;
+                document.getElementById('hesapAcBtn').classList.add('border-cyan-500/50');
+            } else {
+                metinSpan.innerText = `👤 Giriş Yap / Kayıt Ol`;
+                document.getElementById('hesapAcBtn').classList.remove('border-cyan-500/50');
+            }
+        }
 
         document.querySelectorAll('.model-secim-karti').forEach(kart => {
             kart.addEventListener('click', () => {
@@ -500,7 +578,7 @@
             document.getElementById('sidebar').style.backgroundColor = secilen.sidebar;
             let styleTag = document.getElementById('dynamicAtmosfer') || document.createElement('style');
             styleTag.id = 'dynamicAtmosfer';
-            styleTag.innerHTML = `.bg-darkBg { background-color: ${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
+            styleTag.innerHTML = `.bg-darkBg { background-color: \${secilen.bg} !important; } .bg-sidebarBg { background-color: ${secilen.sidebar} !important; } .bg-pillBg { background-color:${secilen.pill} !important; }`;
             document.head.appendChild(styleTag);
         }
 
@@ -528,7 +606,7 @@
             gecmisListesi.innerHTML = "";
             sohbetler.filter(s => s.baslik.toLowerCase().includes(filtre.toLowerCase()) || s.mesajlar.some(m => m.metin.toLowerCase().includes(filtre.toLowerCase()))).forEach(s => {
                 const div = document.createElement('div');
-                div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-xs md:text-sm cursor-pointer transition ${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
+                div.className = `flex items-center justify-between px-3 py-2 rounded-xl text-xs md:text-sm cursor-pointer transition \${s.id === aktifSohbetId ? 'bg-cyan-500/10 text-cyan-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`;
                 const span = document.createElement('span');
                 span.className = 'truncate flex-1'; span.innerText = s.baslik;
                 span.addEventListener('click', () => aktifSohbetiYukle(s.id));
@@ -559,7 +637,7 @@
             sohbet.mesajlar.forEach(m => { icerik += `${m.rol === 'user' ? 'Kullanıcı' : 'NOVA'}: ${m.metin}\n\n`; });
             const blob = new Blob([icerik], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `${sohbet.baslik.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+            a.download = `\${sohbet.baslik.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
             a.click(); a.remove();
         }
 
@@ -600,7 +678,7 @@
             sohbet.mesajlar.push({ rol: 'assistant', metin: '', tip: 'typing' });
             mesajEkranaEkle('assistant', '', sohbet.mesajlar.length - 1, true, 'typing');
 
-            const gorselUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptMetni)}`;
+            const gorselUrl = `https://image.pollinations.ai/prompt/\${encodeURIComponent(promptMetni)}`;
 
             setTimeout(() => {
                 sohbet.mesajlar.pop();
@@ -612,15 +690,15 @@
 
         function mesajEkranaEkle(rol, metin, index, scroll = true, tip = 'text', dosyaAdi = null) {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex flex-col ${rol === 'user' ? 'items-end' : 'items-start'} mb-3 group relative`;
+            wrapper.className = `flex flex-col \${rol === 'user' ? 'items-end' : 'items-start'} mb-3 group relative`;
             
             const bubble = document.createElement('div');
-            bubble.className = `max-w-[90%] md:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs md:text-sm leading-relaxed markdown-body ${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none shadow-sm'}`;
+            bubble.className = `max-w-[90%] md:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs md:text-sm leading-relaxed markdown-body \${rol === 'user' ? 'bg-cyan-500 text-darkBg font-medium rounded-br-none' : 'bg-pillBg border border-gray-800 text-gray-200 rounded-bl-none shadow-sm'}`;
             
             if (tip === 'typing') {
                 bubble.innerHTML = `<div class="flex items-center gap-2"><span class="text-xs text-cyan-400">Görsel üretiliyor</span><div class="typing-dot"><span></span><span></span><span></span></div></div>`;
             } else if (tip === 'image-upload' || tip === 'image') {
-                bubble.innerHTML = `<p class="mb-1 text-[11px] text-cyan-300 font-semibold">${dosyaAdi || 'Görsel'}</p><img src="${metin}" class="rounded-xl w-full max-h-80 object-contain border border-gray-700 bg-black/20">`;
+                bubble.innerHTML = `<p class="mb-1 text-[11px] text-cyan-300 font-semibold">\${dosyaAdi || 'Görsel'}</p><img src="\${metin}" class="rounded-xl w-full max-h-80 object-contain border border-gray-700 bg-black/20">`;
             } else if (rol === 'assistant') {
                 bubble.innerHTML = marked.parse(metin);
                 
